@@ -127,12 +127,16 @@ async function selectRuku(index, liEl){
 
     // Для переводов — сделаем второй раунд fetch для нужного перевода (например en.asad или en.pickthall)
     // В этом примере возьмём перевод Yusuf Ali (en.yusufali) как демонстрационный.
-    const translationPromises = [];
-    for(let v=from; v<=to; v++){
-      translationPromises.push(fetch(`https://api.alquran.cloud/v1/ayah/${item.surah}:${v}/en.yusufali`));
-    }
-    const trResponses = await Promise.all(translationPromises);
-    const trJsons = await Promise.all(trResponses.map(r=>r.json()));
+    // При загрузке переводов для выбранного рука
+      const translationPromises = [];
+      for (let v = from; v <= to; v++) {
+        translationPromises.push(fetch(
+          `https://api.alquran.cloud/v1/ayah/${item.surah}:${v}/ru.kuliev`
+        ));
+      }
+      const trResponses = await Promise.all(translationPromises);
+      const trJsons = await Promise.all(trResponses.map(r => r.json()));
+
 
     for(let i=0;i<trJsons.length;i++){
       const t = trJsons[i];
@@ -141,8 +145,13 @@ async function selectRuku(index, liEl){
       wrapper.className = 'verse';
       wrapper.innerHTML = `
         <div class="arabic">${a?.data?.text || '—'}</div>
-        <div class="translation"><small class="meta">Surah ${item.surah}:${from+i}</small>
-        <div>${t?.data?.edition?.englishName ? `<em>${t.data.edition.englishName}</em><br>` : ''}${t?.data?.text || 'Перевод недоступен'}</div></div>
+        <div class="translation">
+          <small class="meta">Surah ${item.surah}:${from + i}</small>
+          <div>
+            <em>Перевод Э. Кулиева</em><br>
+            ${t?.data?.text || 'Перевод недоступен'}
+          </div>
+        </div>
       `;
       versesContainer.appendChild(wrapper);
     }
