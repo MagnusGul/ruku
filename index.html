@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Список Рук (прототип)</title>
+<style>
+  :root{
+    --bg:#f7fafc; --card:#fff; --accent:#1f6feb; --muted:#6b7280;
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  }
+  body{margin:0;background:var(--bg);color:#0f172a}
+  .container{max-width:1100px;margin:24px auto;padding:20px;}
+  header{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+  h1{margin:0;font-size:20px}
+  .layout{display:grid;grid-template-columns:360px 1fr;gap:18px}
+  .panel{background:var(--card);border-radius:12px;padding:14px;box-shadow:0 6px 18px rgba(15,23,42,0.06)}
+  .ruku-list{list-style:none;padding:0;margin:0;max-height:72vh;overflow:auto;}
+  .ruku-item{padding:10px;border-radius:8px;margin-bottom:8px;cursor:pointer;border:1px solid transparent}
+  .ruku-item:hover{background:#f1f5f9;border-color:#e2e8f0}
+  .ruku-item.active{background:linear-gradient(90deg,#eef2ff,white);border-color:#c7d2fe}
+  .meta{font-size:12px;color:var(--muted)}
+  .content-area{display:flex;flex-direction:column;gap:12px}
+  .verse{padding:10px;border-radius:8px;background:#fbfbff;border:1px solid #eef2ff}
+  .arabic{font-family: "Scheherazade New", "Amiri", serif;font-size:22px;text-align:right;direction:rtl}
+  .translation{margin-top:8px;color:#0f172a}
+  .controls{display:flex;gap:8px;align-items:center}
+  .comments{margin-top:10px}
+  .comment{padding:8px;border-radius:8px;background:#fff;border:1px solid #eef2ff;margin-bottom:6px}
+  textarea{width:100%;min-height:64px;padding:8px;border-radius:6px;border:1px solid #e6edf3}
+  button{background:var(--accent);color:white;border:none;padding:8px 12px;border-radius:8px;cursor:pointer}
+  .small{font-size:13px;color:var(--muted)}
+  @media (max-width:880px){ .layout{grid-template-columns:1fr; } .ruku-list{max-height:220px} }
+</style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Список руков — прототип</h1>
+      <div class="small">Кликните на элемент — загрузится текст и перевод</div>
+    </header>
+
+    <div class="layout">
+      <aside class="panel">
+        <strong>Рук-список (пример)</strong>
+        <ul id="rukuList" class="ruku-list"></ul>
+      </aside>
+
+      <main class="panel content-area">
+        <div id="info" class="small">Выберите руку слева.</div>
+        <div id="versesContainer"></div>
+
+        <div class="panel" style="padding:12px;">
+          <strong>Комментарии</strong>
+          <div id="commentsBlock" class="comments"></div>
+          <textarea id="commentInput" placeholder="Оставьте комментарий..."></textarea>
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <input id="nameInput" placeholder="Имя (необязательно)" style="flex:1;padding:8px;border-radius:6px;border:1px solid #e6edf3"/>
+            <button id="addCommentBtn">Добавить</button>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+<script>
+/*
+  Прототип:
+  - В качестве источника переводов используется public API AlQuran Cloud (без ключа).
+  - Для production можно подключиться к официальному API Quran.com (Content APIs).
+    Документация: https://api-docs.quran.com (нужна проверка прав/ключей).
+  Источники: AlQuran Cloud API, Quran.com docs/terms. (см. ссылки в ответе)
+*/
+
+// ---- Пример данных (часть списка, который вы прислали) ----
+const RUKU_DATA = [
+  { id: '1:1-7', title: "AL-FAATIHA [The Opening]", rukuRef: "1:[1-7]", surah:1, verses:[1,7], notes:"Supplication to Allah for guidance taught by Allah Himself." },
+  { id: '2:1-5', title: "AL-BAQARAH (part 1)", rukuRef: "2:[1-5]", surah:2, verses:[1,5], notes:"Al-Qur'an is free from all doubts." },
+  { id: '2:6-16', title: "AL-BAQARAH (part 2)", rukuRef: "2:[6-16]", surah:2, verses:[6,16], notes:"Hypocrites and consequences of hypocrisy" },
+  // добавьте остальные элементы по шаблону...
+];
+
+// ---- UI: заполнение списка ----
+const rukuListEl = document.getElementById('rukuList');
+const versesContainer = document.getElementById('versesContainer');
+const infoEl = document.getElementById('info');
+
+RUKU_DATA.forEach((r,k)=>{
+  const li = document.createElement('li');
+  li.className='ruku-item';
+  li.dataset.idx = k;
+  li.innerHTML = `<div><strong>${r.title}</strong></div><div class="meta">${r.rukuRef} — ${r.notes || ''}</div>`;
+  li.addEventListener('click', ()=> selectRuku(k, li));
+  rukuListEl.appendChild(li);
+});
+
+// ---- Selection handler ----
+async function selectRuku(index, liEl){
+  // UI active
+  document.querySelectorAll('.ruku-item').forEach(e=>e.classList.remove('active'));
+  liEl.classList.add('active');
+
+  const item = RUKU_DATA[index];
+  infoEl.textContent = `Загрузка: сурa ${item.surah}, аяты ${item.verses[0]}–${item.verses[1]}...`;
+
+  try {
+    // Попытка: получить аяты и перевод через AlQuran Cloud (public API)
+    // Док: https://alquran.cloud/api
+    const from = item.verses[0], to = item.verses[1];
+    const fetchPromises = [];
+    for(let v=from; v<=to; v++){
+      // alquran.cloud: /v1/ayah/{surah}:{ayah}/{edition}
+      fetchPromises.push(fetch(`https://api.alquran.cloud/v1/ayah/${item.surah}:${v}/quran-simple`));
+    }
+    const results = await Promise.all(fetchPromises);
+    const jsons = await Promise.all(results.map(r=>r.json()));
+
+    // Отображение
+    versesContainer.innerHTML = '';
+    jsons.forEach(j=>{
+      if(!j || j.status !== 'OK'){ return; }
+      const arabic = j.data.text; // арабский текст
+      // Перевод: получим английский перевод от AlQuran Cloud (пример: en.asad)
+      // Попробуем получить перевод той же аята (запрос к другому edition)
+      // NOTE: некоторые editions доступны как /v1/ayah/1:1/en.asad
+    });
+
+    // Для переводов — сделаем второй раунд fetch для нужного перевода (например en.asad или en.pickthall)
+    // В этом примере возьмём перевод Yusuf Ali (en.yusufali) как демонстрационный.
+    const translationPromises = [];
+    for(let v=from; v<=to; v++){
+      translationPromises.push(fetch(`https://api.alquran.cloud/v1/ayah/${item.surah}:${v}/en.yusufali`));
+    }
+    const trResponses = await Promise.all(translationPromises);
+    const trJsons = await Promise.all(trResponses.map(r=>r.json()));
+
+    for(let i=0;i<trJsons.length;i++){
+      const t = trJsons[i];
+      const a = jsons[i];
+      const wrapper = document.createElement('div');
+      wrapper.className = 'verse';
+      wrapper.innerHTML = `
+        <div class="arabic">${a?.data?.text || '—'}</div>
+        <div class="translation"><small class="meta">Surah ${item.surah}:${from+i}</small>
+        <div>${t?.data?.edition?.englishName ? `<em>${t.data.edition.englishName}</em><br>` : ''}${t?.data?.text || 'Перевод недоступен'}</div></div>
+      `;
+      versesContainer.appendChild(wrapper);
+    }
+
+    infoEl.textContent = `Показаны аяты ${item.surah}:${from}–${to}. Источник перевода (пример): AlQuran Cloud (Yusuf Ali).`;
+    // Загрузка комментариев для выбранной руки
+    loadComments(item.id);
+
+  } catch (err){
+    console.error(err);
+    infoEl.textContent = 'Ошибка при загрузке. См. консоль.';
+  }
+}
+
+// -------------------- Простейшая система комментариев (localStorage) --------------------
+const COMMENTS_KEY = 'ruku_comments_v1';
+function getAllComments(){
+  try { return JSON.parse(localStorage.getItem(COMMENTS_KEY)) || {}; }
+  catch(e){ return {}; }
+}
+function saveAllComments(data){
+  localStorage.setItem(COMMENTS_KEY, JSON.stringify(data));
+}
+function loadComments(rukuId){
+  const block = document.getElementById('commentsBlock');
+  block.innerHTML = '';
+  const all = getAllComments();
+  const arr = all[rukuId] || [];
+  if(arr.length===0){ block.innerHTML = '<div class="small">Комментариев пока нет.</div>'; return; }
+  arr.slice().reverse().forEach(c=>{
+    const el = document.createElement('div');
+    el.className='comment';
+    el.innerHTML = `<div style="font-weight:600">${escapeHtml(c.name||'Аноним')}</div><div style="font-size:13px;color:#334155">${escapeHtml(c.text)}</div><div class="small" style="text-align:right;color:#94a3b8">${new Date(c.ts).toLocaleString()}</div>`;
+    block.appendChild(el);
+  });
+}
+function addCommentForActiveRuku(){
+  const active = document.querySelector('.ruku-item.active');
+  if(!active){ alert('Выберите руку слева.'); return; }
+  const idx = +active.dataset.idx;
+  const item = RUKU_DATA[idx];
+
+  const txt = document.getElementById('commentInput').value.trim();
+  const name = document.getElementById('nameInput').value.trim();
+  if(!txt) { alert('Комментарий пуст.'); return; }
+  const all = getAllComments();
+  all[item.id] = all[item.id] || [];
+  all[item.id].push({ name:name || 'Аноним', text: txt, ts: Date.now() });
+  saveAllComments(all);
+  document.getElementById('commentInput').value='';
+  document.getElementById('nameInput').value='';
+  loadComments(item.id);
+}
+document.getElementById('addCommentBtn').addEventListener('click', addCommentForActiveRuku);
+
+// ---- утилита ----
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c])); }
+
+</script>
+</body>
+</html>
