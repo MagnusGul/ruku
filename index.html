@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Список Рук (прототип)</title>
+<title>Священный Коран</title>
 <style>
   :root{
     --bg:#f7fafc; --card:#fff; --accent:#1f6feb; --muted:#6b7280;
@@ -36,13 +36,13 @@
 <body>
   <div class="container">
     <header>
-      <h1>Список руков — прототип</h1>
+      <h1>Систематизированный мусхаф Мусы Галима</h1>
       <div class="small">Кликните на элемент — загрузится текст и перевод</div>
     </header>
 
     <div class="layout">
       <aside class="panel">
-        <strong>Рук-список (пример)</strong>
+        <strong>Список</strong>
         <ul id="rukuList" class="ruku-list"></ul>
       </aside>
 
@@ -134,6 +134,7 @@ async function selectRuku(index, liEl){
   // UI active
   document.querySelectorAll('.ruku-item').forEach(e=>e.classList.remove('active'));
   liEl.classList.add('active');
+  document.title = `${item.title}, ${item.rukuRef}`;
 
   const item = RUKU_DATA[index];
   infoEl.textContent = `Загрузка: сурa ${item.surah}, аяты ${item.verses[0]}–${item.verses[1]}...`;
@@ -190,7 +191,7 @@ async function selectRuku(index, liEl){
       versesContainer.appendChild(wrapper);
     }
 
-    infoEl.textContent = `Показаны аяты ${item.surah}:${from}–${to}. Источник перевода (пример): AlQuran Cloud (Yusuf Ali).`;
+    infoEl.textContent = `Показаны аяты ${item.surah}:${from}–${to}. Источник перевода: AlQuran Cloud (Эльмир Кулиев).`;
     // Загрузка комментариев для выбранной руки
     loadComments(item.id);
 
@@ -233,6 +234,7 @@ function addCommentForActiveRuku(){
   if(!txt) { alert('Комментарий пуст.'); return; }
   const all = getAllComments();
   all[item.id] = all[item.id] || [];
+  all[item.id].push({ name:name || 'Аноним', text: txt, ts: Date.now() });
   saveAllComments(all);
   document.getElementById('commentInput').value='';
   document.getElementById('nameInput').value='';
