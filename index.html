@@ -134,11 +134,11 @@ async function selectRuku(index, liEl){
   // UI active
   document.querySelectorAll('.ruku-item').forEach(e=>e.classList.remove('active'));
   liEl.classList.add('active');
-  //document.title = `${item.title}, ${item.rukuRef}`;
+  
 
   const item = RUKU_DATA[index];
   infoEl.textContent = `Загрузка: сурa ${item.surah}, аяты ${item.verses[0]}–${item.verses[1]}...`;
-
+  document.title = `${item.title}, ${item.rukuRef}`;
   try {
     // Попытка: получить аяты и перевод через AlQuran Cloud (public API)
     // Док: https://alquran.cloud/api
