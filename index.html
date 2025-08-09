@@ -76,6 +76,7 @@
 const RUKU_DATA = [
   { id: '1:1-7', title: "AL-FAATIHA [The Opening]", rukuRef: "1:[1-7]", surah:1, verses:[1,7], notes:"Supplication to Allah for guidance taught by Allah Himself." },
   { id: '2:1-5', title: "AL-BAQARAH (part 1)", rukuRef: "2:[1-5]", surah:2, verses:[1,5], notes:"Al-Qur'an is free from all doubts." },
+  { type: 'separator', label: 'Джуз 2' },
   { id: '2:6-16', title: "AL-BAQARAH (part 2)", rukuRef: "2:[6-16]", surah:2, verses:[6,16], notes:"Hypocrites and consequences of hypocrisy" },
   // добавьте остальные элементы по шаблону...
 ];
@@ -85,12 +86,29 @@ const rukuListEl = document.getElementById('rukuList');
 const versesContainer = document.getElementById('versesContainer');
 const infoEl = document.getElementById('info');
 
-RUKU_DATA.forEach((r,k)=>{
+RUKU_DATA.forEach((r, k) => {
+  if (r.type === 'separator') {
+    const sep = document.createElement('li');
+    sep.textContent = r.label;
+    sep.style.cssText = `
+      font-weight: bold;
+      text-align: center;
+      margin: 12px 0 8px;
+      padding: 6px;
+      background: #e2e8f0;
+      border-radius: 6px;
+      color: #1e293b;
+    `;
+    rukuListEl.appendChild(sep);
+    return;
+  }
+
   const li = document.createElement('li');
-  li.className='ruku-item';
+  li.className = 'ruku-item';
   li.dataset.idx = k;
-  li.innerHTML = `<div><strong>${r.title}</strong></div><div class="meta">${r.rukuRef} — ${r.notes || ''}</div>`;
-  li.addEventListener('click', ()=> selectRuku(k, li));
+  li.innerHTML = `<div><strong>${r.title}</strong></div>
+                  <div class="meta">${r.rukuRef} — ${r.notes || ''}</div>`;
+  li.addEventListener('click', () => selectRuku(k, li));
   rukuListEl.appendChild(li);
 });
 
