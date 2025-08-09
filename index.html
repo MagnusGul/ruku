@@ -233,7 +233,6 @@ function addCommentForActiveRuku(){
   if(!txt) { alert('Комментарий пуст.'); return; }
   const all = getAllComments();
   all[item.id] = all[item.id] || [];
-  all[item.id].push({ name:name || 'Аноним', text: txt, ts: Date.now() });
   saveAllComments(all);
   document.getElementById('commentInput').value='';
   document.getElementById('nameInput').value='';
