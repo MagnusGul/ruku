@@ -210,6 +210,44 @@ async function selectRuku(index, liEl){
   }
 }
 
+function renderVerse(surah, verseNumber, arabicText, translationText) {
+  const verseEl = document.createElement('div');
+  verseEl.className = 'verse';
+  verseEl.innerHTML = `
+    <div class="arabic">${arabicText}</div>
+    <div class="translation"><em>Перевод Э. Кулиева</em><br>${translationText}</div>
+    <div class="tafsir-container" style="margin-top:8px; display:none;"></div>
+  `;
+
+  verseEl.addEventListener('click', async () => {
+    const tafsirContainer = verseEl.querySelector('.tafsir-container');
+    if (tafsirContainer.style.display === 'block') {
+      tafsirContainer.style.display = 'none';
+      tafsirContainer.innerHTML = '';
+      return;
+    }
+
+    tafsirContainer.style.display = 'block';
+    tafsirContainer.textContent = 'Загрузка тафсира...';
+
+    try {
+      const tafsirResp = await fetch(`https://api.quran.com:443/v4/tafsirs/by_ayah/${surah}:${verseNumber}?tafsir_id=169`, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      });
+      const tafsirJson = await tafsirResp.json();
+      tafsirContainer.innerHTML = tafsirJson?.tafsir?.text || 'Тафсир недоступен';
+    } catch (err) {
+      console.error(err);
+      tafsirContainer.textContent = 'Ошибка при загрузке тафсира';
+    }
+  });
+
+  return verseEl;
+}
+  
 // -------------------- Простейшая система комментариев (localStorage) --------------------
 const COMMENTS_KEY = 'ruku_comments_v1';
 function getAllComments(){
