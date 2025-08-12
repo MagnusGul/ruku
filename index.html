@@ -34,16 +34,16 @@
   @media (max-width:880px){ .layout{grid-template-columns:1fr; } .ruku-list{max-height:220px} }
 </style>
 </head>
-<body>
+<body> 
+  <div id="scroll-buttons" style="position: fixed; right: 20px; bottom: 20px; display: flex; flex-direction: column; gap: 8px; z-index: 1000;">
+    <button id="scroll-up" style="padding: 8px 12px; background: #2563eb; color: white; border: none; border-radius: 6px; cursor: pointer;">↑ Наверх</button>
+    <button id="scroll-to-ruku" style="padding: 8px 12px; background: #16a34a; color: white; border: none; border-radius: 6px; cursor: pointer;">↓ К руку</button>
+  </div>
   <div class="container">
     <header>
       <h1>Систематизированный мусхаф Мусы Галима</h1>
       <div class="small">Кликните на элемент — загрузится текст и перевод</div>
     </header>
-  <div id="scroll-buttons" style="position: fixed; right: 20px; bottom: 20px; display: flex; flex-direction: column; gap: 8px; z-index: 1000;">
-    <button id="scroll-up" style="padding: 8px 12px; background: #2563eb; color: white; border: none; border-radius: 6px; cursor: pointer;">↑ Наверх</button>
-    <button id="scroll-to-ruku" style="padding: 8px 12px; background: #16a34a; color: white; border: none; border-radius: 6px; cursor: pointer;">↓ К руку</button>
-  </div>
     <div class="layout">
       <aside class="panel">
         <strong>Список</strong>
