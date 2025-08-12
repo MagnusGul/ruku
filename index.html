@@ -40,7 +40,10 @@
       <h1>Систематизированный мусхаф Мусы Галима</h1>
       <div class="small">Кликните на элемент — загрузится текст и перевод</div>
     </header>
-
+  <div id="scroll-buttons" style="position: fixed; right: 20px; bottom: 20px; display: flex; flex-direction: column; gap: 8px; z-index: 1000;">
+    <button id="scroll-up" style="padding: 8px 12px; background: #2563eb; color: white; border: none; border-radius: 6px; cursor: pointer;">↑ Наверх</button>
+    <button id="scroll-to-ruku" style="padding: 8px 12px; background: #16a34a; color: white; border: none; border-radius: 6px; cursor: pointer;">↓ К руку</button>
+  </div>
     <div class="layout">
       <aside class="panel">
         <strong>Список</strong>
@@ -121,6 +124,20 @@ const RUKU_DATA = [
 const rukuListEl = document.getElementById('rukuList');
 const versesContainer = document.getElementById('versesContainer');
 const infoEl = document.getElementById('info');
+let lastSelectedRuku = null;
+
+document.getElementById('scroll-up').addEventListener('click', () => {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+// Прокрутка к выбранному руку
+document.getElementById('scroll-to-ruku').addEventListener('click', () => {
+  if (lastSelectedRuku) {
+    lastSelectedRuku.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  } else {
+    alert('Сначала выберите руку на левой панели.');
+  }
+});
 
 RUKU_DATA.forEach((r, k) => {
   if (r.type === 'separator-surah') {
@@ -168,7 +185,7 @@ async function selectRuku(index, liEl){
   // UI active
   document.querySelectorAll('.ruku-item').forEach(e=>e.classList.remove('active'));
   liEl.classList.add('active');
-  
+  lastSelectedRuku = liEl
 
   const item = RUKU_DATA[index];
   infoEl.textContent = `Загрузка: сурa ${item.surah}, аяты ${item.verses[0]}–${item.verses[1]}...`;
