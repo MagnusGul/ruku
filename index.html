@@ -186,7 +186,7 @@ async function selectRuku(index, liEl){
   document.querySelectorAll('.ruku-item').forEach(e=>e.classList.remove('active'));
   liEl.classList.add('active');
   lastSelectedRuku = liEl
-
+  window.scrollTo({ top: 0, behavior: 'smooth' });
   const item = RUKU_DATA[index];
   infoEl.textContent = `Загрузка: сурa ${item.surah}, аяты ${item.verses[0]}–${item.verses[1]}...`;
   document.title = `${item.title}, ${item.rukuRef}`;
