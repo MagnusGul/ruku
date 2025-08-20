@@ -32,9 +32,65 @@
   button{background:var(--accent);color:white;border:none;padding:8px 12px;border-radius:8px;cursor:pointer}
   .small{font-size:13px;color:var(--muted)}
   @media (max-width:880px){ .layout{grid-template-columns:1fr; } .ruku-list{max-height:220px} }
+body {
+  margin: 0;
+  font-family: sans-serif;
+  display: flex;
+}
+
+/* Левое фиксированное меню с джузами */
+#juz-menu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 180px;
+  background: #1f2937;
+  color: white;
+  overflow-y: auto;
+  padding: 16px;
+}
+
+#juz-menu h3 {
+  margin-top: 0;
+  font-size: 16px;
+  color: #93c5fd;
+}
+
+#juz-menu ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+#juz-menu li {
+  padding: 6px 10px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+#juz-menu li:hover {
+  background: #374151;
+}
+
+/* Основное содержимое сдвигается вправо */
+#main-content {
+  margin-left: 180px; /* место для меню */
+  flex: 1;
+  display: flex;
+}
 </style>
 </head>
 <body> 
+    <nav id="juz-menu">
+    <h3>Джуз</h3>
+    <ul>
+      <li onclick="scrollToJuz(1)">Джуз 1</li>
+      <li onclick="scrollToJuz(2)">Джуз 2</li>
+      <li onclick="scrollToJuz(3)">Джуз 3</li>
+      <!-- … и т.д. до 30 -->
+    </ul>
+  </nav>
   <div id="scroll-buttons" style="position: fixed; right: 20px; bottom: 20px; display: flex; flex-direction: column; gap: 8px; z-index: 1000;">
     <button id="scroll-up" style="padding: 8px 12px; background: #2563eb; color: white; border: none; border-radius: 6px; cursor: pointer;">↑ Наверх</button>
     <button id="scroll-to-ruku" style="padding: 8px 12px; background: #16a34a; color: white; border: none; border-radius: 6px; cursor: pointer;">↓ К руку</button>
@@ -212,6 +268,15 @@ RUKU_DATA.forEach((r, k) => {
   rukuListEl.appendChild(li);
 });
 
+function scrollToJuz(juzNumber) {
+  const target = document.querySelector(`[data-juz='${juzNumber}']`);
+  if (target) {
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } else {
+    alert('Раздел для Джуз ' + juzNumber + ' пока не найден.');
+  }
+}
+  
 // ---- Selection handler ----
 async function selectRuku(index, liEl){
   // UI active
@@ -283,7 +348,7 @@ async function selectRuku(index, liEl){
     infoEl.textContent = 'Ошибка при загрузке. См. консоль.';
   }
 }
-  
+
 // -------------------- Простейшая система комментариев (localStorage) --------------------
 const COMMENTS_KEY = 'ruku_comments_v1';
 function getAllComments(){
