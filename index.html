@@ -30,10 +30,10 @@
 const sidebarItems = [
     { type: "juz", number: 1 },
     { type: "surah", number: 1, name: "Аль-Фатиха" },
-    { type: "ruku", id: 1, title: "Наилучшая молитва", tags: ["вера"], chapter: 1, from: 1, to: 7, juz: 1 },
+    { type: "ruku", id: 1, title: "Наилучшая молитва", tags: ["Молитвы"], chapter: 1, from: 1, to: 7, juz: 1 },
     
     { type: "surah", number: 1, name: "Аль-Бакара" },
-    { type: "ruku", id: 2, title: "1. Это руководство для богобоязненных", tags: ["вера"], chapter: 2, from: 1, to: 7, juz: 1, boldSeparators: [5]  },
+    { type: "ruku", id: 2, title: "1 [1:7] Это руководство для богобоязненных", tags: ["Неверующие", "Коран"], chapter: 2, from: 1, to: 7, juz: 1, boldSeparators: [5] },
     { type: "ruku", id: 3, title: "", tags: ["вера"], chapter: 2, from: 1, to: 7, juz: 1 },
     { type: "ruku", id: 4, title: "", tags: ["вера"], chapter: 2, from: 1, to: 7, juz: 1 },
     { type: "ruku", id: 5, title: "", tags: ["вера"], chapter: 2, from: 1, to: 7, juz: 1 },
@@ -211,18 +211,18 @@ async function loadRuku(ruku) {
     data.verses.forEach(v => {
         const div = document.createElement("div");
         div.className = "ayah";
+    
+        // если после этого аята нужен жирный разделитель
+        if (ruku.boldSeparators && ruku.boldSeparators.includes(v.verse_number)) {
+            div.classList.add("bold-border");
+        }
+    
         div.innerHTML = `
             <div class="translation">${v.translations[0].text}</div>
             <div class="arabic">${v.text_uthmani}</div>
         `;
-        content.appendChild(div);
     
-        // жирная линия
-        if (ruku.boldSeparators && ruku.boldSeparators.includes(v.verse_number)) {
-            const boldLine = document.createElement("div");
-            boldLine.className = "bold-separator";
-            content.appendChild(boldLine);
-        }
+        content.appendChild(div);
     });
 
 }
