@@ -97,6 +97,7 @@ const sidebarItems = [
         type: "ruku",
         id: 1,
         title: "Руку‘ 1",
+        description: "aaaaa",
         tags: ["вера"],
         chapter: 2,
         from: 1,
@@ -106,6 +107,7 @@ const sidebarItems = [
         type: "ruku",
         id: 2,
         title: "Руку‘ 2",
+        description: "aaaaa",
         tags: ["шариат"],
         chapter: 2,
         from: 21,
@@ -158,6 +160,7 @@ function renderRukuList(filterTag = "") {
             div.className = "ruku";
             div.innerHTML = `
                 <strong>${item.title}</strong>
+                <div class="description">#${item.description}</div>
                 <div class="tags">#${item.tags.join(" #")}</div>
             `;
             div.onclick = () => loadRuku(item);
