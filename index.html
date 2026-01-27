@@ -1,364 +1,114 @@
-<!doctype html>
-<html lang="ru">
-<head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<meta name="google-site-verification" content="UPSyUzXbb3LLN03ny96zrG0YpRdKM0c4S2lTGFHV_N8" />
-<title>Священный Коран</title>
-<style>
-  :root{
-    --bg:#f7fafc; --card:#fff; --accent:#1f6feb; --muted:#6b7280;
-    font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-  }
-  body{margin:0;background:var(--bg);color:#0f172a}
-  .container{max-width:1100px;margin:24px auto;padding:20px;}
-  header{display:flex;align-items:center;gap:12px;margin-bottom:18px}
-  h1{margin:0;font-size:20px}
-  .layout{display:grid;grid-template-columns:360px 1fr;gap:18px}
-  .panel{background:var(--card);border-radius:12px;padding:14px;box-shadow:0 6px 18px rgba(15,23,42,0.06)}
-  .ruku-list{list-style:none;padding:0;margin:0}
-  .ruku-item{padding:10px;border-radius:8px;margin-bottom:8px;cursor:pointer;border:1px solid transparent}
-  .ruku-item:hover{background:#f1f5f9;border-color:#e2e8f0}
-  .ruku-item.active{background:linear-gradient(90deg,#eef2ff,white);border-color:#c7d2fe}
-  .meta{font-size:12px;color:var(--muted)}
-  .content-area{display:flex;flex-direction:column;gap:12px}
-  .verse{padding:10px;border-radius:8px;background:#fbfbff;border:1px solid #eef2ff}
-  .arabic{font-family: "Scheherazade New", "Amiri", serif;font-size:22px;text-align:right;direction:rtl}
-  .translation{margin-top:8px;color:#0f172a}
-  .controls{display:flex;gap:8px;align-items:center}
-  .comments{margin-top:10px}
-  .comment{padding:8px;border-radius:8px;background:#fff;border:1px solid #eef2ff;margin-bottom:6px}
-  textarea{width:100%;min-height:64px;padding:8px;border-radius:6px;border:1px solid #e6edf3}
-  button{background:var(--accent);color:white;border:none;padding:8px 12px;border-radius:8px;cursor:pointer}
-  .small{font-size:13px;color:var(--muted)}
-  @media (max-width:880px){ .layout{grid-template-columns:1fr; } .ruku-list{max-height:220px} }
+import { useEffect, useState, useMemo } from "react";
 
-/* Основное содержимое сдвигается вправо */
-#main-content {
-  margin-left: 180px; /* место для меню */
-  flex: 1;
-  display: flex;
-}
-</style>
-</head>
-<body> 
-  <div id="scroll-buttons" style="position: fixed; right: 20px; bottom: 20px; display: flex; flex-direction: column; gap: 8px; z-index: 1000;">
-    <button id="scroll-up" style="padding: 8px 12px; background: #2563eb; color: white; border: none; border-radius: 6px; cursor: pointer;">↑ Наверх</button>
-    <button id="scroll-to-ruku" style="padding: 8px 12px; background: #16a34a; color: white; border: none; border-radius: 6px; cursor: pointer;">↓ К руку</button>
-  </div>
-  <div class="container">
-    <header>
-      <h1>Систематизированный мусхаф Мусы Галима</h1>
-      <div class="small">Кликните на элемент — загрузится текст и перевод</div>
-    </header>
-    <div class="layout">
-      <aside class="panel">
-        <strong>Список</strong>
-        <ul id="rukuList" class="ruku-list"></ul>
+// Простое демо-приложение
+// Источник данных: https://api.quran.com
+// Теги и заголовки руку' хранятся локально (в state)
+
+export default function QuranRukuViewer() {
+  const [rukus, setRukus] = useState([]);
+  const [selectedRuku, setSelectedRuku] = useState(null);
+  const [verses, setVerses] = useState([]);
+  const [translation, setTranslation] = useState([]);
+  const [tagFilter, setTagFilter] = useState("all");
+
+  // Загрузка списка руку'
+  useEffect(() => {
+    fetch("https://api.quran.com/api/v4/rukus")
+      .then((res) => res.json())
+      .then((data) => {
+        // добавляем теги и заголовок локально
+        const enriched = data.rukus.map((r) => ({
+          ...r,
+          title: `Руку ${r.ruku_number}`,
+          tags: [] // пример: ['акыда', 'намаз']
+        }));
+        setRukus(enriched);
+      });
+  }, []);
+
+  // Загрузка текста выбранного руку'
+  useEffect(() => {
+    if (!selectedRuku) return;
+
+    fetch(
+      `https://api.quran.com/api/v4/verses/by_ruku/${selectedRuku.ruku_number}?language=ru&words=false&translations=20`
+    )
+      .then((res) => res.json())
+      .then((data) => {
+        setVerses(data.verses);
+        setTranslation(data.verses.map((v) => v.translations[0]));
+      });
+  }, [selectedRuku]);
+
+  const allTags = useMemo(() => {
+    const tags = new Set();
+    rukus.forEach((r) => r.tags.forEach((t) => tags.add(t)));
+    return ["all", ...Array.from(tags)];
+  }, [rukus]);
+
+  const filteredRukus = useMemo(() => {
+    if (tagFilter === "all") return rukus;
+    return rukus.filter((r) => r.tags.includes(tagFilter));
+  }, [rukus, tagFilter]);
+
+  return (
+    <div className="flex h-screen text-sm">
+      {/* Левая панель */}
+      <aside className="w-1/4 border-r overflow-y-auto p-3 space-y-2">
+        <h2 className="text-lg font-semibold">Руку'</h2>
+
+        <select
+          className="w-full border rounded p-1"
+          value={tagFilter}
+          onChange={(e) => setTagFilter(e.target.value)}
+        >
+          {allTags.map((t) => (
+            <option key={t} value={t}>{t}</option>
+          ))}
+        </select>
+
+        {filteredRukus.map((r) => (
+          <button
+            key={r.id}
+            onClick={() => setSelectedRuku(r)}
+            className={`block w-full text-left p-2 rounded hover:bg-gray-100 ${
+              selectedRuku?.id === r.id ? "bg-gray-200" : ""
+            }`}
+          >
+            <div className="font-medium">{r.title}</div>
+            {r.tags.length > 0 && (
+              <div className="text-xs text-gray-500">{r.tags.join(", ")}</div>
+            )}
+          </button>
+        ))}
       </aside>
 
-      <main class="panel content-area">
-        <div id="info" class="small">Выберите руку слева.</div>
-        <div id="versesContainer"></div>
+      {/* Правая часть */}
+      <main className="flex-1 overflow-y-auto p-6">
+        {!selectedRuku && (
+          <div className="text-gray-500">Выберите руку слева</div>
+        )}
 
-        <div class="panel" style="padding:12px;">
-          <strong>Комментарии</strong>
-          <div id="commentsBlock" class="comments"></div>
-          <textarea id="commentInput" placeholder="Оставьте комментарий..."></textarea>
-          <div style="display:flex;gap:8px;margin-top:8px">
-            <input id="nameInput" placeholder="Имя (необязательно)" style="flex:1;padding:8px;border-radius:6px;border:1px solid #e6edf3"/>
-            <button id="addCommentBtn">Добавить</button>
+        {selectedRuku && (
+          <div className="space-y-4">
+            <h1 className="text-xl font-semibold">{selectedRuku.title}</h1>
+
+            {verses.map((v, i) => (
+              <div
+                key={v.id}
+                className="grid grid-cols-2 gap-6 border-b pb-4"
+              >
+                <div className="text-gray-800 leading-relaxed">
+                  {translation[i]?.text}
+                </div>
+                <div className="text-right text-lg leading-loose font-arabic">
+                  {v.text_uthmani}
+                </div>
+              </div>
+            ))}
           </div>
-        </div>
+        )}
       </main>
     </div>
-  </div>
-
-<script>
-/*
-  Прототип:
-  - В качестве источника переводов используется public API AlQuran Cloud (без ключа).
-  - Для production можно подключиться к официальному API Quran.com (Content APIs).
-    Документация: https://api-docs.quran.com (нужна проверка прав/ключей).
-  Источники: AlQuran Cloud API, Quran.com docs/terms. (см. ссылки в ответе)
-*/
-
-// ---- Пример данных (часть списка, который вы прислали) ----
-const RUKU_DATA = [
-  { type: 'separator-juz', label: 'Джуз 1'},
-  { type: 'separator-surah', label: '1. Аль-Фатиха [Откррывающая Книгу]'},
-  { id: '1:1-7', title: "Наилучшая молитва Аллаху.", rukuRef: "1:[1-7]", surah:1, verses:[1,7], notes:"Мольба к Аллаху о руководстве, которой научил Сам Аллах" },
-  { type: 'separator-surah', label: '2. Аль-Бакара [Корова] 40 руку 286 аятов'},
-  { id: '2:1-7', title: "1. О Коране", rukuRef: "2:[1-7]", surah:2, verses:[1,7], notes:"Коран свободен от всех сомнений. Он является руководством для богобоязненных. Предупреждение бесполезно для тех, кто отвергает веру." },
-  { id: '2:8-20', title: "2. О Лицемерах", rukuRef: "2:[8-20]", surah:2, verses:[8,20], notes:"Лицемеры и последствия лицемерия. Примеры их дел" },
-  { id: '2:21-29', title: "3. Послание к человечеству", rukuRef: "2:[21-29]", surah:2, verses:[21,29], notes:"Требование Аллаха поклоняться только Ему. Утверждение Корана как Книги Аллаха. Награда для верующих. Пример комара может смутить многих и просветить многих. Как вы можете отрицать Аллаха?" },
-  { id: '2:30-39', title: "4. О Адаме (мир ему) и сотворении людей", rukuRef: "2:[30-39]", surah:2, verses:[30,39], notes:"История сотворения Адама. Победа знания. Ангелы проявляют уважение к Адаму. Шайтан заставил Адама потерять рай. Раскаяние Адама и его прощение. Необходимость откровений Аллаха для руководства" },
-  { id: '2:40-46', title: "5. Послание сынам Израиля", rukuRef: "2:[40-46]", surah:2, verses:[40,46], notes:"Заветы Аллаха с детьми Израиля. Вы советуете другим и забываете себя? Помощь Аллаха приходит с терпением и молитвой" },
-  { id: '2:47-59', title: "6. Послание сынам Израиля: о спасени из Египта", rukuRef: "2:[47-59]", surah:2, verses:[47,59], notes:"Преступники не найдут выхода в День Суда. Избавление израильтян от преследований фараона. Грех израильтян в поклонении тельцу. Их раскаяние через убийство виновных. Израильтяне, которые хотели увидеть Аллаха напрямую, были умерщвлены, затем Аллах дал им жизнь снова и предоставил им небесную пищу. Недовольство и неверие израильтян" },
-  { id: '2:60-61', title: "7. Послание сынам Израиля: о их преступлениях", rukuRef: "2:[60-61]", surah:2, verses:[60,61], notes:"Чудо дарования воды из скалы. Израильтяне отвергли небесную пищу. Израильтяне отвергли небесную пищу." },
-  { id: '2:62-74', title: "8. Послание сынам Израиля: о знамениях и их отторжении", rukuRef: "2:[62-74]", surah:2, verses:[62,74], notes:"Истинные верующие не имеют причин для страха или сожаления. Завет Израильтян с Аллахом. Наказание за нарушение субботы. Отношение Израильтян к жертвоприношению коровы по повелению Аллаха. Чудо воскрешения мертвого тела. Реакция израильтян на чудо."},
-  { id: '2:75-82', title: "9. О Людях Писания", rukuRef: "2:[75-82]", surah:2, verses:[75,82], notes:"Люди Писания — безнадежные жертвы лицемерия. Некоторые из них приписывают свои собственные писания Аллаху. Ложное утверждение евреев и его наказание" },
-  { id: '2:83-87', title: "10. Послание сынам Израиля: о заповедях", rukuRef: "2:[83-87]", surah:2, verses:[83,87], notes:"Израильтяне заключили завет и нарушили его. Их поведение со своим собственным народом"},
-  { id: '2:88-96', title: "11. О иудеях", rukuRef: "2:[88-96]", surah:2, verses:[88, 96], notes:"Пришествие Пророка Исы (Иисуса). Евреи сознательно отвергли истину. Суть веры евреев. Их любовь к тельцу была больше, чем любовь к Аллаху. Утверждение евреев об исключительном праве наследовать рай подвергается испытанию."},
-  { id: '2:97-103', title: "12. Клевета иудеев о ангелах", rukuRef: "2:[97-103]", surah:2, verses:[97, 103], notes:"Их враждебность к Джибраилу и другим ангелам. Неверие Израильтян. Их обвинение против Пророка Сулеймана. Их изучение колдовства. Если у вас есть дополнительные вопросы или нужна помощь, дайте знать!."},
-  { id: '2:104-112', title: "13. О откровениях", rukuRef: "2:[104-112]", surah:2, verses:[104,112], notes:"Этикет обращения к Пророку Аллаха. Отмена и/или замена аятов Корана. Вопрошание Пророка. Зависть евреев и христиан. Открытый кредитный счет для загробной жизни. Ложное утверждение евреев и христиан о наследовании рая"},
-  { id: '2:113-123', title: "14. О иудеях и христианах", rukuRef: "2:[113-123]", surah:2, verses:[113, 123], notes:"Религиозные предрассудки евреев и христиан. Повеление не препятствовать людям приходить в мечети. Все направления принадлежат Аллаху. Обвинение против Аллаха в том, что у Него есть сын. Коран — это знание истины. Евреи и христиане никогда не будут довольны вами."},
-  { id: '2:124-129', title: "15. О Ибрахиме (мир ему) и строительстве Каабы и Мекки", rukuRef: "2:[124-129]", surah:2, verses:[124, 129], notes:"Ответственность в День Суда. Ибрахим был сделан вождем человечества. Важность Каабы. Молитва Ибрахима за город Мекку. Ибрахим и Исмаил молятся о назначении Пророка из города Мекки."},
-  { id: '2:130-141', title: "16. Ислам — вера всех пророков", rukuRef: "2:[130-141]", surah:2, verses:[130, 141], notes:"Ислам: религия Ибрахима. Совет Ибрахима своим сыновьям. Повеление Аллаха верить во всех Пророков без различия. Крещение от Аллаха. Ибрахим и его сыновья не были ни евреями, ни христианами"},
-  
-  { type: 'separator-juz', label: 'Джуз 2'},
-  { id: '2:142-147', title: "17. О кибле", rukuRef: "2:[142-147]", surah:2, verses:[142,147], notes:"Кыбла (направление в молитвах). Повеление Аллаха изменить Кыблу. Кааба в Мекке была сделана новой Кыблой."},
-  { id: '2:148-152', title: "18. О молитве в любом месте", rukuRef: "2:[148-152]", surah:2, verses:[148,152], notes:"Повеление обращаться к Каабе как Кыбле во время Салята (молитв)"},
-  { id: '2:153-163', title: "19. О бедствиях", rukuRef: "2:[153-163]", surah:2, verses:[153,163], notes:"Предписание искать помощи у Аллаха. Мученики не мертвы. Аллах испытает веру верующих следующим. Сафа и Марва — символы Аллаха. Проклятие Аллаха, ангелов и всего человечества на тех, кто скрывает истину"},
-  { id: '2:164-167', title: "20. О многобожниках", rukuRef: "2:[164-167]", surah:2, verses:[164,167], notes:"Знаки из природы, чтобы познать Аллаха. Мушрики будут иметь суровое наказание. Последователи введённых в заблуждение лидеров будут сожалеть в День Суда"},
-  { id: '2:168-176', title: "21. О пище", rukuRef: "2:[168-176]", surah:2, verses:[168,176], notes:"Не следуйте по стопам Шайтана. Не исповедуйте веру слепо. Запрещённая (Харам) пища. Те, кто скрывает истину ради мирских благ, глотают не что иное, как огонь"},
-  { id: '2:177-182', title: "22. О мусульманах и завещаниях", rukuRef: "2:[177-182]", surah:2, verses:[177,182], notes:"Исламское определение праведности. Исламские законы возмездия. Заповедь Аллаха исполнить завещание"},
-  { id: '2:183-188', title: "23. О посте в месяц Рамазан", rukuRef: "2:[183-188]", surah:2, verses:[183,188], notes:"Обязанность поста. Откровение Корана и пост в месяц Рамадан. Аллах очень близок к своим почитателям. Отношения между мужем и женой разрешены в ночи поста. Время поста. Взяточничество — это грех"},
-  { id: '2:189-196', title: "24. О месяцах, войне", rukuRef: "2:[189-196]", surah:2, verses:[189,196], notes:"Луна служит для определения периодов времени. Повеление сражаться за справедливое дело. Возмездие разрешено даже в священные месяцы. Заповедь давать милостыню. Хадж и Умра (паломничество в Мекку)."},
-  { id: '2:197-210', title: "25. О хадже и лицемерах", rukuRef: "2:[197-210]", surah:2, verses:[197,210], notes:"Ограничения во время Хаджа. Совершение Хаджа (паломничества). Лицемерие против истинной веры. Заповедь полностью войти в Ислам."},
-  { id: '2:211-216', title: "26. О мирской жизни", rukuRef: "2:[211-216]", surah:2, verses:[211,216], notes:"Верующие будут выше неверующих в День Суда. Человечество было одной нацией, имеющей одну религию. Путь в Рай лежит через испытания. Милостыня и сражение (за справедливое дело) сделаны обязательными"},
-  { id: '2:217-221', title: "27. О войнах, алкоголе, и браке с язычниками", rukuRef: "2:[217-221]", surah:2, verses:[217,221], notes:"Сражение во время священных месяцев является тяжким грехом. Наказание для миртада (того, кто отрекается от ислама). Питье и азартные игры греховны (Первое повеление о запрете). Заповедь справедливо обращаться с сиротами Запрещено выходить замуж за мужчину-мушрика или женщину-мушрика"},
-  { id: '2:222-228', title: "28. О женах и клятвах", rukuRef: "2:[222-228]", surah:2, verses:[222,228], notes:"Запрет на супружеские отношения во время менструации. Не злоупотребляйте клятвами, данными именем Аллаха. Установлен лимит в четыре месяца на отказ от супружеских отношений. Срок ожидания для повторного брака составляет три менструальных периода после развода."},
-  { id: '2:229-231', title: "29. О разводах", rukuRef: "2:[229-231]", surah:2, verses:[229,231], notes:"Законы, относящиеся к разводу. Заповедь о почтенном и добром обращении с разведенными женщинами"},
-  { id: '2:232-235', title: "30. О разводах и кормлении грудью", rukuRef: "2:[232-235]", surah:2, verses:[232,235], notes:"Нет ограничений на повторный брак для разведенных. Заповедь о грудном вскармливании детей. Вдовам повелено ждать четыре месяца и десять дней перед повторным браком. Нет ограничений на повторный брак вдов."},
-  { id: '2:236-242', title: "31. О разводах, смиренности в молитве и вдовах", rukuRef: "2:[236-242]", surah:2, verses:[236,242], notes:"Заповеди, относящиеся к приданому в случае развода. Заповедь о соблюдении Салята (молитв). Исполнение Завещания сделано обязательным. "},
-  { id: '2:243-248', title: "32. О Талуте — царе сынов Израиля", rukuRef: "2:[243-248]", surah:2, verses:[243,248], notes:"Сражайтесь на пути Аллаха без страха смерти, ибо от смерти нет спасения. Израильтяне просили царя, чтобы сражаться на пути Аллаха. Аллах назначил Талута быть их царем "},
-  { id: '2:249-253', title: "33. О Дауде (Мир ему)", rukuRef: "2:[249-253]", surah:2, verses:[249,253], notes:"Большинство израильтян не выдержали испытания своей веры. Победа не зависит от численности. Мольба верующих о победе. Аллах подтвердил пророчество Мухаммада (мир ему). Положения посланников"},
-  
-  { type: 'separator-juz', label: 'Джуз 3'},
-  { id: '2:254-257', title: "34. О Аллахе", rukuRef: "2:[254-257]", surah:2, verses:[254,257], notes:"Траты на благотворительность. Атрибуты Аллаха — `Аят аль-Курси`. В религии нет принуждения."},
-  { id: '2:258-260', title: "35. О Всемогуществе Аллаха", rukuRef: "2:[258-260]", surah:2, verses:[258,260], notes:"Спор Ибрахима и Намруда. Пример воскрешения мёртвых. Вопрос Ибрахима о воскрешении"},
-  { id: '2:261-266', title: "36. О даче милостыни", rukuRef: "2:[261-266]", surah:2, verses:[261,266], notes:"Притча о милостыне. Что делает милостыню бесполезной. Милостыня против показухи"},
-  { id: '2:267-273', title: "37. О том, чем должна быть милостыня", rukuRef: "2:[267-273]", surah:2, verses:[267,273], notes:"Тратьте лучшую часть своего имущества. Обещание Аллаха против обещания Шайтана. Давать милостыню публично хорошо, но давать тайно лучше. Кто имеет право получать милостыню?"},
-  { id: '2:274-281', title: "38. О растовщичестве", rukuRef: "2:[274-281]", surah:2, verses:[274,281], notes:"Вознаграждение за подаяние милостыни. Запрет ростовщичества. Брать ростовщический процент — всё равно что объявить войну Аллаху и Его Посланнику"},
-  { id: '2:282-283', title: "39. О долговых договорах", rukuRef: "2:[282-283]", surah:2, verses:[282,283], notes:"Повеление записывать все торговые сделки — займы, долги и покупки в кредит. При крупных сделках требуются свидетели. Если запись невозможна, возьмите залог."},
-  { id: '2:284-286', title: "40. На человека не возлагается сверх его возможностей", rukuRef: "2:[284-286]", surah:2, verses:[284,286], notes:"Аллах призовёт к отчёту за все деяния. Истинная вера пророков и мусульман. Мольба верующего."},
-  { type: 'separator-surah', label: '3. Али-Имран [Семейство Имрана] 20 руку 200 аятов'},
-  { id: '3:1-9', title: "1. О писаниях", rukuRef: "3:[1-9]", surah:3, verses:[1,9], notes:"Именно Аллах ниспослал Таурат (Тору), Инджиль (Евангелие) и Коран. Определённые и иносказательные аяты Корана. Мольба верующих оставаться стойкими в вере."},
-  { id: '3:10-20', title: "2. О мирских удовольствия и о Исламе", rukuRef: "3:[10-20]", surah:3, verses:[10,20], notes:"Ни богатство, ни дети не защитят от неверия. Битва при Бадре была знаком милости Аллаха. Удобства этой жизни против жизни в загробном мире. Свидетельство Аллаха о Себе. Истинной религией перед Аллахом является только Ислам"},
-  { id: '3:21-30', title: "3. О искажениях иудаизма и о Всемогуществе Аллаха", rukuRef: "3:[21-30]", surah:3, verses:[21,30], notes:"Предупреждение о мучительном наказании за неверие. Евреи и христиане обманываются своими собственными выдуманными убеждениями. Именно Аллах дарует или отнимает власть и честь. Запрет брать неверующих в покровители."},
-  { id: '3:31-41', title: "4. О Марьям", rukuRef: "3:[31-41]", surah:3, verses:[31,41], notes:"Повеление слушаться и следовать за Пророком. Адам, Нух (Ной), семьи Ибрахима и Имрана были возвеличены. Рождение и взросление Марьям (Марии — матери Исы). Мольба Закарии. (Захарии) о даровании сына — Аллах исполнил его желание и даровал ему сына по имени Яхья (Иоанн)."},
-  { id: '3:42-54', title: "5. О Исе (мир ему)", rukuRef: "3:[42-54]", surah:3, verses:[42,54], notes:"Аллах избрал Марьям (Марию) для Своей службы и возвысил её над всеми женщинами мира. Аллах даровал Марьям благородного сына по имени Иса (Иисус). Рождение Исы (Иисуса), сына Марьям. Чудеса, данные Исе (Иисусу). Последователи Исы (Иисуса) также назывались мусульманами. Заговор с целью убить Ису (Иисуса)."},
-  { id: '3:55-63', title: "6. О Вознесении Исы (мир ему)", rukuRef: "3:[55-63]", surah:3, verses:[55,63], notes:"Обещание Аллаха очистить Ису (Иисуса) от тех, кто отверг его. Рождение Исы (Иисуса) без отца подобно сотворению Адама без родителей. `Мубахаля`: [Призыв к решению Аллаха, если оспаривается рождение Исы (Иисуса)]."},
-  { id: '3:64-71', title: "7. Послание людям Писания о Ибрахиме (мир ему)", rukuRef: "3:[64-71]", surah:3, verses:[64,71], notes:"Повеление призывать евреев и христиан объединиться на основе того, что обще между ними и мусульманами. Религия Ибрахима была Ислам, и мусульмане — его последователи."},
-  { id: '3:72-80', title: "8. Лицемерие людей Писания", rukuRef: "3:[72-80]", surah:3, verses:[72,80], notes:"Лицемеры среди евреев и христиан. Среди евреев и христиан есть хорошие и плохие люди. Некоторые евреи и христиане искажают цитаты из своих Священных Книг. Иса (Иисус) никогда не призывал поклоняться ему вместо Аллаха."},
-  { id: '3:81-91', title: "9. О раскаянии после неверия", rukuRef: "3:[81-91]", surah:3, verses:[81,91], notes:"Завет Аллаха со всеми пророками относительно Последнего Пророка (Мухаммада, ﷺ). Никакая другая религия, кроме Ислама, не принимается Аллахом. Вознаграждением неверующим будет проклятие Аллаха, ангелов и всего человечества. Неверующие, которые умрут неверующими, будут подвергнуты вечному мучительному наказанию."},
-  
-  { type: 'separator-juz', label: 'Джуз 4'},
-  { id: '3:92-101', title: "10. О Каабе и искажении рилигии Людьми Писания", rukuRef: "3:[92-101]", surah:3, verses:[92,101], notes:"Критерии праведности. Законная и незаконная еда для Сыновей Израиля. Первый Дом Аллаха на Земле. Неверие Иудеев и Христиан: не подчиняйтесь Иудеям и Христианам."},
-  { id: '3:102-109', title: "11. Умирайте мусульманами и не разделяйтесь", rukuRef: "3:[102-109]", surah:3, verses:[102,109], notes:"Живите Исламом, умирайте мусульманами, и не разделяйтесь. Наказание для тех, кто разделяет мусульман на секты."},
-  { id: '3:110-120', title: "12. О праведных и грешных Людях Писания", rukuRef: "3:[110-120]", surah:3, verses:[110,120], notes:"Мусульмане — лучшая община созданная для того, чтобы запроещать зло и призывать к добру: некоторые праведные Люди Писания лицемерны с милостыней; Близкая дружба должна быть только с уверовавшими"},
-  { id: '3:121-129', title: "13. Битва при Ухуде: Страх перед битвой", rukuRef: "3:[121-129]", surah:3, verses:[121,129], notes:"Уроки с битвы при Ухуде: Помощь Аллаха верующим. Пророк не имеет права прошать грешников"},
-  { id: '3:130-143', title: "14. О чередоапнии радости и горя", rukuRef: "3:[130-143]", surah:3, verses:[130,143], notes:"Запрет растовщичества. Аллах любит щедрых. Верующим обещана победа. Нет рая без испытания"},
-  { id: '3:144-148', title: "15. О трудностях.", rukuRef: "3:[144-148]", surah:3, verses:[144,148], notes:"Мухаммад (pbuh), он не более чем Посланник Аллаха. Пророки и их последователи. Молитва верующих"},
-  { id: '3:149-155', title: "16. Битва при Ухуде: Печаль после битвы", rukuRef: "3:[149-155]", surah:3, verses:[149,155], notes:"Не следуйте за неверующими. Итог неподчинения Посланнику. После горя Аллах даровал покой. Невозможно избежать смерти"},
-  { id: '3:156-171', title: "17. Битва при Ухуде: упование на Аллах во всех делах", rukuRef: "3:[156-171]", surah:3, verses:[156,171], notes:"Жизнь и смерть от Аллаха. Советуйся перед принятием решений, затем будь тверд о решении. Доверься Аллаху. Достоинства Посланника. Уроки, которые должны быть выучены после битвы у Ухуде: Те, кто был убит на пути Аллаха не мертвы"},
-  { id: '3:172-180', title: "18. Битва при Ухуде: неверующих в итоге окажутся проигравшими", rukuRef: "3:[172-180]", surah:3, verses:[172,180], notes:"Стойкость верующих при Ухуде. Наказание за измену веры на неверие. Тяжелые условия — испытание от Аллаха. Наказание за скупость"},
-  { id: '3:181-189', title: "19. О нарушенном завете с Иудеями", rukuRef: "3:[181-189]", surah:3, verses:[181,189], notes:"Иудеи богохульствуют и лгут на Аллаха. Каждый должен умереть. Испытание для верующих. Наказание за самозванство при совершении добрых дел."},
-  { id: '3:190-200', title: "20. Молитва верующих и ответ Господа.", rukuRef: "3:[190-200]", surah:3, verses:[190,200], notes:"Знамения из природы. Мольба верующих. Аллах принял мольбу. Не обманывайтесь неверющими: Буть терпелив и преуспей в терпении и стройкости"},
-  { type: 'separator-surah', label: '4. Ан-Ниса [Женщины] 24 руку 176 аятов'},
-  { id: '4:1-10', title: "1. О семейном имуществе", rukuRef: "4:[1-10]", surah:4, verses:[1,10], notes:"Зоздание человечества. Имущество сирот. Ограничение количества жен. Поручение махра. Не доверяйте имущество слабоумным. Учите сирот обращаться с имуществом. Законы наследства"},
-  { id: '4:11-14', title: "2. Законы наследства", rukuRef: "4:[11-14]", surah:4, verses:[11,14], notes:"Предписанные части завещания. Завещание имущества супруга. Приказ соблюдать ограничения Аллаха."},
-  { id: '4:15-22', title: "3. О прелюбодеянии и других правилах женитьбы", rukuRef: "4:[15-22]", surah:4, verses:[15,22], notes:"Исходный приказ о наказании прелюбодеяние женщин. Принятые и непринятые покаяния. Женщины не должны считаться частью наслдедства. Не забирайте махр у женщины. Запрет брать в жены женщину у одного и того же отца."},
-  { id: '4:23-25', title: "4. Запретные женщины", rukuRef: "4:[23-25]", surah:4, verses:[23,25], notes:"Женщины на которых запрещено женитсяю. Отношения к Махраму. Разрешенные и запрещенные браки. Разрешение женитьбы на невольницах"},
-
-  { type: 'separator-juz', label: 'Джуз 5'},
-  { id: '4:26-33', title: "5.", rukuRef: "4:[26-33]", surah:4, verses:[26,33], notes:"Аллах желает вести и прощать. Уважение к частной собственности. Избегайте ужасные грехи и не будьте жадными. Законы наследования налажены"},
-  { id: '4:34-42', title: "6.", rukuRef: "4:[34-42]", surah:4, verses:[34,42], notes:"Мужчины являются надсмотрщиками над женщинами. Меры для непослушных женщина. Судейство в семейных спорах. Хикук-уль-Ибад (прова других людей). Свидетели пророка в день воскресения"},
-  { id: '4:43-50', title: "7.", rukuRef: "4:[43-50]", surah:4, verses:[43,50], notes:"Запрет употребление алкоголя (второй запрет). Омовение землей. Поведение Людей Писания. Приглашение Людей писания к вере. Те кто приравнивает что бы то ни было к Аллаху не будут прощены"},
-  { id: '4:51-59', title: "8.", rukuRef: "4:[51-59]", surah:4, verses:[51,59], notes:"Люди Писание склонны занимать стороны Шайтана. судьба неверующих и верующих. Кому должны подчинятся верующие"},
-  { id: '4:60-70', title: "9.", rukuRef: "4:[60-70]", surah:4, verses:[60,70], notes:"Отношение лицемеров к решениям Пророка. Тот, кто спорит с решениями пророка не является верующим. Верующие будут выдающейся общиной в Последней жизни."},
-  { id: '4:71-76', title: "10.", rukuRef: "4:[71-76]", surah:4, verses:[71,76], notes:"Будьте готовы к войнам. Войны должны помогать подавленным."},
-  { id: '4:77-87', title: "11.", rukuRef: "4:[77-87]", surah:4, verses:[77,87], notes:"Бойтесь Аллаха, а не людей. Невозможно избежать смерти. Подчинение Пророку суть подчинение Аллаху. Докозательство, что Коран есть божественное откровение. Сообщайте важные новости ответственным людям. Отвечайте приветствию еще более лучшим приветствием."},
-  { id: '4:88-91', title: "12.", rukuRef: "4:[88-91]", surah:4, verses:[88,91], notes:"Борьтесь с лицемерами и лицемерией"},
-  { id: '4:92-96', title: "13.", rukuRef: "4:[92-96]", surah:4, verses:[92,96], notes:"Наказание за убийство верующего и законы выкупа за убийство. Тщательно расследуйте перед принятием решение. Положение Муджахида перед Немуджахидом"},
-  { id: '4:97-100', title: "14.", rukuRef: "4:[97-100]", surah:4, verses:[97,100], notes:"Подавленные обязаны эмигрировать, если это возможно. Награда за эмиграцию по причине веры в Аллаха"},
-  { id: '4:101-104', title: "15.", rukuRef: "4:[101-104]", surah:4, verses:[101,104], notes:"Салат-уль-Каср: Укорачивание молитвы во время поездок и войны. Молитва обязательна в свое определенное время"},
-  { id: '4:105-112', title: "16.", rukuRef: "4:[105-112]", surah:4, verses:[105,112], notes:"Устанавливайте справедливость согласно Божьему руководству. Предупреждение о клевете и о обвинении невинных"},
-  { id: '4:113-115', title: "17.", rukuRef: "4:[113-115]", surah:4, verses:[113,115], notes:"Особая благосклонность Аллаха к Пророку. Запрет секретных советников и их особых привелегий."},
-  { id: '4:116-126', title: "18.", rukuRef: "4:[116-126]", surah:4, verses:[116,126], notes:"Ширк — непрастительных грех. Обещание Шайтена выхывать страсти. Обещание Аллаха даровать рай праведникам, а кто может быть честнее Аллаха в обещаниях? Нет никого лучше Покорившихся."},
-  { id: '4:127-134', title: "19.", rukuRef: "4:[127-134]", surah:4, verses:[127,134], notes:"Устонавливайте справедливость для женщин, сирот, девочек и беспомощных детей. Бойтесь Аллаха в своих делах"},
-  { id: '4:135-141', title: "20.", rukuRef: "4:[135-141]", surah:4, verses:[135,141], notes:"Обязанность защищать справедливость. Верующие обязаны верить всем сердцем. Бойкот неисламских собраний. Лицемеры имеют двойные стандарты"},
-  { id: '4:142-152', title: "21.", rukuRef: "4:[142-152]", surah:4, verses:[142,152], notes:"Характеристика лицемеров и акты их лицемерия. Лицемеры будут на самом дне Огня. Не говорите злых слов. Не проводите черту между повиновением Аллаху и повиновением посланнику."},
-  // добавьте остальные элементы по шаблону...
-];
-
-// ---- UI: заполнение списка ----
-const rukuListEl = document.getElementById('rukuList');
-const versesContainer = document.getElementById('versesContainer');
-const infoEl = document.getElementById('info');
-let lastSelectedRuku = null;
-
-document.getElementById('scroll-up').addEventListener('click', () => {
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-});
-
-// Прокрутка к выбранному руку
-document.getElementById('scroll-to-ruku').addEventListener('click', () => {
-  if (lastSelectedRuku) {
-    lastSelectedRuku.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  } else {
-    alert('Сначала выберите руку на левой панели.');
-  }
-});
-
-RUKU_DATA.forEach((r, k) => {
-  if (r.type === 'separator-surah') {
-    const sep = document.createElement('li');
-    sep.textContent = r.label;
-    sep.style.cssText = `
-      font-weight: bold;
-      text-align: center;
-      margin: 12px 0 8px;
-      padding: 6px;
-      background: #e2e8f0;
-      border-radius: 6px;
-      color: #1e293b;
-    `;
-    rukuListEl.appendChild(sep);
-    return;
-  }
-  if (r.type === 'separator-juz') {
-    const sep = document.createElement('li');
-    sep.textContent = r.label;
-    sep.style.cssText = `
-      font-weight: bold;
-      text-align: center;
-      margin: 12px 0 8px;
-      padding: 6px;
-      background: #A9A9A9;
-      border-radius: 6px;
-      color: #1e293b;
-    `;
-    rukuListEl.appendChild(sep);
-    return;
-  }
-
-  const li = document.createElement('li');
-  li.className = 'ruku-item';
-  li.dataset.idx = k;
-  li.innerHTML = `<div><strong>${r.title}</strong></div>
-                  <div class="meta">${r.rukuRef} — ${r.notes || ''}</div>`;
-  li.addEventListener('click', () => selectRuku(k, li));
-  rukuListEl.appendChild(li);
-});
-  
-// ---- Selection handler ----
-async function selectRuku(index, liEl){
-  // UI active
-  document.querySelectorAll('.ruku-item').forEach(e=>e.classList.remove('active'));
-  liEl.classList.add('active');
-  lastSelectedRuku = liEl
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-  const item = RUKU_DATA[index];
-  infoEl.textContent = `Загрузка: сурa ${item.surah}, аяты ${item.verses[0]}–${item.verses[1]}...`;
-  document.title = `${item.title}, ${item.rukuRef}`;
-  try {
-    // Попытка: получить аяты и перевод через AlQuran Cloud (public API)
-    // Док: https://alquran.cloud/api
-    const from = item.verses[0], to = item.verses[1];
-    const fetchPromises = [];
-    for(let v=from; v<=to; v++){
-      // alquran.cloud: /v1/ayah/{surah}:{ayah}/{edition}
-      fetchPromises.push(fetch(`https://api.alquran.cloud/v1/ayah/${item.surah}:${v}/quran-simple`));
-    }
-    const results = await Promise.all(fetchPromises);
-    const jsons = await Promise.all(results.map(r=>r.json()));
-
-    // Отображение
-    versesContainer.innerHTML = '';
-    jsons.forEach(j=>{
-      if(!j || j.status !== 'OK'){ return; }
-      const arabic = j.data.text; // арабский текст
-      // Перевод: получим английский перевод от AlQuran Cloud (пример: en.asad)
-      // Попробуем получить перевод той же аята (запрос к другому edition)
-      // NOTE: некоторые editions доступны как /v1/ayah/1:1/en.asad
-    });
-
-    // Для переводов — сделаем второй раунд fetch для нужного перевода (например en.asad или en.pickthall)
-    // В этом примере возьмём перевод Yusuf Ali (en.yusufali) как демонстрационный.
-    // При загрузке переводов для выбранного рука
-      const translationPromises = [];
-      for (let v = from; v <= to; v++) {
-        translationPromises.push(fetch(
-          `https://api.alquran.cloud/v1/ayah/${item.surah}:${v}/ru.kuliev`
-        ));
-      }
-      const trResponses = await Promise.all(translationPromises);
-      const trJsons = await Promise.all(trResponses.map(r => r.json()));
-
-
-    for(let i=0;i<trJsons.length;i++){
-      const t = trJsons[i];
-      const a = jsons[i];
-      const wrapper = document.createElement('div');
-      wrapper.className = 'verse';
-      wrapper.innerHTML = `
-        <div class="arabic">${a?.data?.text || '—'}</div>
-        <div class="translation">
-          <small class="meta">Surah ${item.surah}:${from + i}</small>
-          <div>
-            ${t?.data?.text || 'Перевод недоступен'}
-          </div>
-        </div>
-      `;
-      versesContainer.appendChild(wrapper);
-    }
-
-    infoEl.textContent = `Показаны аяты ${item.surah}:${from}–${to}. Источник перевода: AlQuran Cloud (Эльмир Кулиев).`;
-    // Загрузка комментариев для выбранной руки
-    loadComments(item.id);
-
-  } catch (err){
-    console.error(err);
-    infoEl.textContent = 'Ошибка при загрузке. См. консоль.';
-  }
+  );
 }
-
-// -------------------- Простейшая система комментариев (localStorage) --------------------
-const COMMENTS_KEY = 'ruku_comments_v1';
-function getAllComments(){
-  try { return JSON.parse(localStorage.getItem(COMMENTS_KEY)) || {}; }
-  catch(e){ return {}; }
-}
-function saveAllComments(data){
-  localStorage.setItem(COMMENTS_KEY, JSON.stringify(data));
-}
-function loadComments(rukuId){
-  const block = document.getElementById('commentsBlock');
-  block.innerHTML = '';
-  const all = getAllComments();
-  const arr = all[rukuId] || [];
-  if(arr.length===0){ block.innerHTML = '<div class="small">Комментариев пока нет.</div>'; return; }
-  arr.slice().reverse().forEach(c=>{
-    const el = document.createElement('div');
-    el.className='comment';
-    el.innerHTML = `<div style="font-weight:600">${escapeHtml(c.name||'Аноним')}</div><div style="font-size:13px;color:#334155">${escapeHtml(c.text)}</div><div class="small" style="text-align:right;color:#94a3b8">${new Date(c.ts).toLocaleString()}</div>`;
-    block.appendChild(el);
-  });
-}
-function addCommentForActiveRuku(){
-  const active = document.querySelector('.ruku-item.active');
-  if(!active){ alert('Выберите руку слева.'); return; }
-  const idx = +active.dataset.idx;
-  const item = RUKU_DATA[idx];
-
-  const txt = document.getElementById('commentInput').value.trim();
-  const name = document.getElementById('nameInput').value.trim();
-  if(!txt) { alert('Комментарий пуст.'); return; }
-  const all = getAllComments();
-  all[item.id] = all[item.id] || [];
-  all[item.id].push({ name:name || 'Аноним', text: txt, ts: Date.now() });
-  saveAllComments(all);
-  document.getElementById('commentInput').value='';
-  document.getElementById('nameInput').value='';
-  loadComments(item.id);
-}
-document.getElementById('addCommentBtn').addEventListener('click', addCommentForActiveRuku);
-
-// ---- утилита ----
-function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c])); }
-
-</script>
-</body>
-</html>
