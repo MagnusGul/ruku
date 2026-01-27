@@ -82,7 +82,11 @@ select {
     gap: 24px;
     padding-bottom: 14px;
     margin-bottom: 18px;
-    border-bottom: 1px dashed #2a2f3a;
+    border-bottom: 1px dashed #2a2f3a; /* обычная линия */
+}
+
+.ayah.bold-border {
+    border-bottom: 3px solid #6a86ff; /* жирная сплошная линия */
 }
 
 .translation {
