@@ -105,3 +105,8 @@ select {
     font-size: 22px;
     color: #ffd36a;
 }
+
+.bold-separator {
+    border-bottom: 3px solid #6a86ff; /* толстая линия */
+    margin: 8px 0 12px 0;
+}
