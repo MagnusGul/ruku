@@ -119,7 +119,7 @@ const tagFilter = document.getElementById("tagFilter");
 const content = document.getElementById("content");
 
 /* Заполняем теги */
-const tags = [...new Set(rukuData.flatMap(r => r.tags))];
+const tags = [...new Set(sidebarItems.flatMap(r => r.tags))];
 tags.forEach(tag => {
     const opt = document.createElement("option");
     opt.value = tag;
