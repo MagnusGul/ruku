@@ -160,7 +160,7 @@ function renderRukuList(filterTag = "") {
             div.className = "ruku";
             div.innerHTML = `
                 <strong>${item.title}</strong>
-                <div class="description">#${item.description}</div>
+                <div class="description">${item.description}</div>
                 <div class="tags">#${item.tags.join(" #")}</div>
             `;
             div.onclick = () => loadRuku(item);
