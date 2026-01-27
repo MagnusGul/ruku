@@ -72,6 +72,7 @@
         padding: 5px;
     }
 </style>
+<link rel="stylesheet" href="dark.css">
 </head>
 <body>
 
@@ -143,7 +144,7 @@ tagFilter.onchange = () => renderRukuList(tagFilter.value);
 async function loadRuku(ruku) {
     content.innerHTML = `<h2>${ruku.title}</h2>`;
 
-    const url = `https://api.quran.com/api/v4/verses/by_chapter/${ruku.chapter}?from=${ruku.from}&to=${ruku.to}&translations=20&fields=text_uthmani`;
+    const url = `https://api.quran.com/api/v4/verses/by_chapter/${ruku.chapter}?from=${ruku.from}&to=${ruku.to}&translations=45&fields=text_uthmani`;
 
     try {
         const response = await fetch(url);
