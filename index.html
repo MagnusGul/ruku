@@ -1,82 +1,18 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<title>Quran Ruku Viewer</title>
-
-<style>
-    body {
-        margin: 0;
-        font-family: Arial, sans-serif;
-        display: flex;
-        height: 100vh;
-    }
-
-    /* Левая панель */
-    #sidebar {
-        width: 300px;
-        border-right: 1px solid #ddd;
-        padding: 10px;
-        overflow-y: auto;
-        box-sizing: border-box;
-    }
-
-    .ruku {
-        padding: 10px;
-        margin-bottom: 8px;
-        border: 1px solid #ccc;
-        border-radius: 6px;
-        cursor: pointer;
-    }
-
-    .ruku:hover {
-        background: #f5f5f5;
-    }
-
-    .tags {
-        font-size: 12px;
-        color: #666;
-    }
-
-    /* Правая часть */
-    #content {
-        flex: 1;
-        padding: 20px;
-        overflow-y: auto;
-        box-sizing: border-box;
-    }
-
-    .ayah {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 20px;
-        margin-bottom: 15px;
-        border-bottom: 1px dashed #ddd;
-        padding-bottom: 10px;
-    }
-
-    .translation {
-        font-size: 16px;
-    }
-
-    .arabic {
-        font-size: 22px;
-        text-align: right;
-        direction: rtl;
-        font-family: "Amiri", serif;
-    }
-
-    select {
-        width: 100%;
-        margin-bottom: 10px;
-        padding: 5px;
-    }
-</style>
-<link rel="stylesheet" href="dark.css">
+    <meta charset="UTF-8">
+    <title>Quran Ruku Viewer</title>
+    <link rel="stylesheet" href="dark.css">
 </head>
 <body>
 
 <div id="sidebar">
+
+    <select id="jumpSelect">
+        <option value="">Перейти к...</option>
+    </select>
+
     <select id="tagFilter">
         <option value="">Все теги</option>
     </select>
@@ -89,7 +25,8 @@
 </div>
 
 <script>
-let activeRukuId = null;
+/* ================== ДАННЫЕ ================== */
+
 const sidebarItems = [
     { type: "juz", number: 1 },
     { type: "surah", number: 2, name: "Аль-Бакара" },
@@ -98,31 +35,56 @@ const sidebarItems = [
         type: "ruku",
         id: 1,
         title: "Руку‘ 1",
-        description: "aaaaa",
         tags: ["вера"],
         chapter: 2,
         from: 1,
-        to: 5
+        to: 5,
+        juz: 1
     },
     {
         type: "ruku",
         id: 2,
         title: "Руку‘ 2",
-        description: "aaaaa",
         tags: ["шариат"],
         chapter: 2,
         from: 21,
-        to: 25
+        to: 25,
+        juz: 1
+    },
+
+    { type: "juz", number: 2 },
+
+    {
+        type: "ruku",
+        id: 3,
+        title: "Руку‘ 3",
+        tags: ["история"],
+        chapter: 2,
+        from: 38,
+        to: 46,
+        juz: 2
     }
 ];
 
+/* ================== СОСТОЯНИЕ ================== */
 
 const rukuList = document.getElementById("rukuList");
 const tagFilter = document.getElementById("tagFilter");
+const jumpSelect = document.getElementById("jumpSelect");
 const content = document.getElementById("content");
 
-/* Заполняем теги */
-const tags = [...new Set(sidebarItems.flatMap(r => r.tags))];
+let activeRukuId = null;
+let activeJuz = null;
+let bookmarks = JSON.parse(localStorage.getItem("bookmarks")) || [];
+
+/* ================== ТЕГИ ================== */
+
+const tags = [...new Set(
+    sidebarItems
+        .filter(i => i.type === "ruku")
+        .flatMap(r => r.tags)
+)];
+
 tags.forEach(tag => {
     const opt = document.createElement("option");
     opt.value = tag;
@@ -130,86 +92,122 @@ tags.forEach(tag => {
     tagFilter.appendChild(opt);
 });
 
-/* Рендер списка руку‘ */
+/* ================== ПЕРЕХОД ================== */
+
+sidebarItems.forEach(item => {
+    if (item.type === "juz") {
+        const opt = document.createElement("option");
+        opt.value = `juz-${item.number}`;
+        opt.textContent = `Джуз ${item.number}`;
+        jumpSelect.appendChild(opt);
+    }
+    if (item.type === "surah") {
+        const opt = document.createElement("option");
+        opt.value = `surah-${item.number}`;
+        opt.textContent = `Сура ${item.number}. ${item.name}`;
+        jumpSelect.appendChild(opt);
+    }
+});
+
+jumpSelect.onchange = () => {
+    const target = document.querySelector(
+        `[data-anchor="${jumpSelect.value}"]`
+    );
+    if (target) {
+        target.scrollIntoView({ behavior: "smooth" });
+    }
+};
+
+/* ================== РЕНДЕР ================== */
+
 function renderRukuList(filterTag = "") {
     rukuList.innerHTML = "";
 
     sidebarItems.forEach(item => {
 
-        /* ===== Разделители ===== */
-        if (item.type === "juz" && !filterTag) {
+        if ((item.type === "juz" || item.type === "surah") && filterTag) return;
+
+        if (item.type === "juz") {
             const div = document.createElement("div");
             div.className = "divider juz";
+            if (item.number === activeJuz) div.classList.add("active");
             div.textContent = `Джуз ${item.number}`;
+            div.dataset.anchor = `juz-${item.number}`;
             rukuList.appendChild(div);
             return;
         }
 
-        if (item.type === "surah" && !filterTag) {
+        if (item.type === "surah") {
             const div = document.createElement("div");
             div.className = "divider surah";
             div.textContent = `Сура ${item.number}. ${item.name}`;
+            div.dataset.anchor = `surah-${item.number}`;
             rukuList.appendChild(div);
             return;
         }
 
-        /* ===== Руку‘ ===== */
         if (item.type === "ruku") {
             if (filterTag && !item.tags.includes(filterTag)) return;
-        
+
             const div = document.createElement("div");
             div.className = "ruku";
-        
-            if (item.id === activeRukuId) {
-                div.classList.add("active");
-            }
-        
+            if (item.id === activeRukuId) div.classList.add("active");
+
+            const star = bookmarks.includes(item.id) ? "★ " : "";
+
             div.innerHTML = `
-                <strong>${item.title}</strong>
+                <strong>${star}${item.title}</strong>
                 <div class="tags">#${item.tags.join(" #")}</div>
             `;
-        
+
             div.onclick = () => loadRuku(item);
             rukuList.appendChild(div);
         }
     });
 }
 
-
 tagFilter.onchange = () => renderRukuList(tagFilter.value);
 
-/* Загрузка текста руку‘ */
+/* ================== ЗАГРУЗКА РУКУ‘ ================== */
+
 async function loadRuku(ruku) {
     activeRukuId = ruku.id;
-    content.innerHTML = `<h2>${ruku.title}</h2>`;
+    activeJuz = ruku.juz;
+    renderRukuList(tagFilter.value);
+
+    const isBookmarked = bookmarks.includes(ruku.id);
+
+    content.innerHTML = `
+        <h2>
+            ${ruku.title}
+            <button id="bookmarkBtn">${isBookmarked ? "★" : "☆"}</button>
+        </h2>
+    `;
+
+    document.getElementById("bookmarkBtn").onclick = () => {
+        if (isBookmarked) {
+            bookmarks = bookmarks.filter(id => id !== ruku.id);
+        } else {
+            bookmarks.push(ruku.id);
+        }
+        localStorage.setItem("bookmarks", JSON.stringify(bookmarks));
+        loadRuku(ruku);
+    };
 
     const url = `https://api.quran.com/api/v4/verses/by_chapter/${ruku.chapter}?from=${ruku.from}&to=${ruku.to}&translations=45&fields=text_uthmani`;
 
-    try {
-        const response = await fetch(url);
-        const data = await response.json();
+    const response = await fetch(url);
+    const data = await response.json();
 
-        if (!data.verses) {
-            content.innerHTML += "<p>Ошибка загрузки аятов</p>";
-            return;
-        }
-
-        data.verses.forEach(v => {
-            const ayahDiv = document.createElement("div");
-            ayahDiv.className = "ayah";
-
-            ayahDiv.innerHTML = `
-                <div class="translation">${v.translations[0].text}</div>
-                <div class="arabic">${v.text_uthmani}</div>
-            `;
-
-            content.appendChild(ayahDiv);
-        });
-
-    } catch (e) {
-        content.innerHTML += "<p>Ошибка соединения с API</p>";
-        console.error(e);
-    }
+    data.verses.forEach(v => {
+        const div = document.createElement("div");
+        div.className = "ayah";
+        div.innerHTML = `
+            <div class="translation">${v.translations[0].text}</div>
+            <div class="arabic">${v.text_uthmani}</div>
+        `;
+        content.appendChild(div);
+    });
 }
 
 renderRukuList();
