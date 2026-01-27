@@ -86,7 +86,7 @@ select {
 }
 
 .ayah.bold-border {
-    border-bottom: 3px solid #ffffff; /* жирная сплошная линия */
+    border-bottom: 3px solid #2a2f3a; /* жирная сплошная линия */
 }
 
 .translation {
