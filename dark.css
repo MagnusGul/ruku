@@ -87,3 +87,28 @@ select {
     font-family: "Amiri", "Scheherazade", serif;
     color: #f2f2f2;
 }
+
+/* ===== Разделители ===== */
+.divider {
+    margin: 14px 0 6px;
+    padding: 6px 10px;
+    font-size: 13px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    border-radius: 4px;
+    opacity: 0.85;
+}
+
+/* Джуз */
+.divider.juz {
+    background: #1e263a;
+    color: #9fb4ff;
+    border-left: 4px solid #5a7dff;
+}
+
+/* Сура */
+.divider.surah {
+    background: #18241e;
+    color: #a8e6c1;
+    border-left: 4px solid #4caf7d;
+}
