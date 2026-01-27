@@ -1,0 +1,89 @@
+/* ===== Общие ===== */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    display: flex;
+    height: 100vh;
+    background: #0f1217;
+    color: #e6e6e6;
+}
+
+/* ===== Левая панель ===== */
+#sidebar {
+    width: 300px;
+    border-right: 1px solid #222;
+    padding: 10px;
+    overflow-y: auto;
+    box-sizing: border-box;
+    background: #141821;
+}
+
+.ruku {
+    padding: 10px;
+    margin-bottom: 8px;
+    border: 1px solid #2a2f3a;
+    border-radius: 6px;
+    cursor: pointer;
+    background: #191e2a;
+    transition: background 0.2s, border 0.2s;
+}
+
+.ruku:hover {
+    background: #22283a;
+    border-color: #3a4156;
+}
+
+.tags {
+    font-size: 12px;
+    color: #9aa4c7;
+}
+
+/* ===== Фильтр ===== */
+select {
+    width: 100%;
+    margin-bottom: 10px;
+    padding: 6px;
+    background: #191e2a;
+    color: #e6e6e6;
+    border: 1px solid #2a2f3a;
+    border-radius: 4px;
+}
+
+/* ===== Контент ===== */
+#content {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    box-sizing: border-box;
+    background: #0f1217;
+}
+
+#content h2 {
+    margin-top: 0;
+    border-bottom: 1px solid #2a2f3a;
+    padding-bottom: 10px;
+}
+
+/* ===== Аяты ===== */
+.ayah {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 18px;
+    padding-bottom: 15px;
+    border-bottom: 1px dashed #2a2f3a;
+}
+
+.translation {
+    font-size: 16px;
+    line-height: 1.6;
+    color: #d6d9e3;
+}
+
+.arabic {
+    font-size: 24px;
+    text-align: right;
+    direction: rtl;
+    font-family: "Amiri", "Scheherazade", serif;
+    color: #f2f2f2;
+}
