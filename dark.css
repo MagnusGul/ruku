@@ -112,3 +112,8 @@ select {
     color: #a8e6c1;
     border-left: 4px solid #4caf7d;
 }
+
+.divider.juz.active {
+    background: #2f3f7a;
+    color: #ffffff;
+}
