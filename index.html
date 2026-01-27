@@ -89,6 +89,7 @@
 </div>
 
 <script>
+let activeRukuId = null;
 const sidebarItems = [
     { type: "juz", number: 1 },
     { type: "surah", number: 2, name: "Аль-Бакара" },
@@ -155,14 +156,19 @@ function renderRukuList(filterTag = "") {
         /* ===== Руку‘ ===== */
         if (item.type === "ruku") {
             if (filterTag && !item.tags.includes(filterTag)) return;
-
+        
             const div = document.createElement("div");
             div.className = "ruku";
+        
+            if (item.id === activeRukuId) {
+                div.classList.add("active");
+            }
+        
             div.innerHTML = `
                 <strong>${item.title}</strong>
-                <div class="description">${item.description}</div>
                 <div class="tags">#${item.tags.join(" #")}</div>
             `;
+        
             div.onclick = () => loadRuku(item);
             rukuList.appendChild(div);
         }
@@ -174,6 +180,7 @@ tagFilter.onchange = () => renderRukuList(tagFilter.value);
 
 /* Загрузка текста руку‘ */
 async function loadRuku(ruku) {
+    activeRukuId = ruku.id;
     content.innerHTML = `<h2>${ruku.title}</h2>`;
 
     const url = `https://api.quran.com/api/v4/verses/by_chapter/${ruku.chapter}?from=${ruku.from}&to=${ruku.to}&translations=45&fields=text_uthmani`;
