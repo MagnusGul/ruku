@@ -27,8 +27,44 @@
 <script>
 /* ================== ДАННЫЕ ================== */
 
-const response = fetch('rukuData.json');
-const sidebarItems = response.json();
+const sidebarItems = [
+    { type: "juz", number: 1 },
+    { type: "surah", number: 2, name: "Аль-Бакара" },
+
+    {
+        type: "ruku",
+        id: 1,
+        title: "Руку‘ 1",
+        tags: ["вера"],
+        chapter: 2,
+        from: 1,
+        to: 5,
+        juz: 1
+    },
+    {
+        type: "ruku",
+        id: 2,
+        title: "Руку‘ 2",
+        tags: ["шариат"],
+        chapter: 2,
+        from: 21,
+        to: 25,
+        juz: 1
+    },
+
+    { type: "juz", number: 2 },
+
+    {
+        type: "ruku",
+        id: 3,
+        title: "Руку‘ 3",
+        tags: ["история"],
+        chapter: 2,
+        from: 38,
+        to: 46,
+        juz: 2
+    }
+];
 
 /* ================== СОСТОЯНИЕ ================== */
 
