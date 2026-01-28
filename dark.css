@@ -43,7 +43,6 @@ body {
     resize: horizontal;
     overflow: auto;
 }
-}
 
 #content {
     flex: 1;
