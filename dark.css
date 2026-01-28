@@ -114,33 +114,93 @@ select:focus {
 /* ================== RUKU ================== */
 
 .ruku {
-    padding: 10px;
-    margin-bottom: 8px;
-    border: 1px solid rgba(255,255,255,0.12);
-    border-radius: 8px;
-    background: rgba(25,30,42,0.85);
+    padding: 10px 12px;
+    margin-bottom: 10px;
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 10px;
+    background: rgba(25,30,42,0.75);
     cursor: pointer;
+    position: relative;
 }
 
+/* hover — очень мягкий */
 .ruku:hover {
-    background: rgba(36,43,63,0.95);
+    background: rgba(36,43,63,0.85);
     transform: translateX(2px);
 }
 
+/* активный */
 .ruku.active {
-    background: rgba(43,51,80,0.95);
+    background: rgba(43,51,80,0.92);
     border-color: #6a86ff;
-    box-shadow: inset 0 0 0 1px rgba(106,134,255,0.4);
+    box-shadow: inset 0 0 0 1px rgba(106,134,255,0.35);
 }
 
-.descriptions{
-    font-family: Roboto;
-    color: #fff;
+/* ===== Заголовок руку ===== */
+.ruku > strong {
+    display: block;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.4;
+    color: #eef1ff;
+    margin-bottom: 6px;
 }
 
+/* ===== Описание / структура ===== */
+.descriptions {
+    font-family: Roboto, system-ui, sans-serif;
+    font-size: 13px;
+    line-height: 1.45;
+    color: #a6afcf;
+    opacity: 0.9;
+
+    padding-left: 10px;
+    margin-left: 2px;
+    border-left: 2px solid rgba(255,255,255,0.10);
+
+    /* главное: свернуто по умолчанию */
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease, opacity 0.3s ease;
+    opacity: 0;
+}
+
+/* показываем структуру при hover и active */
+.ruku:hover .descriptions,
+.ruku.active .descriptions {
+    max-height: 300px;
+    opacity: 1;
+}
+
+/* чуть воздуха между строками внутри description */
+.descriptions div,
+.descriptions p {
+    margin-bottom: 2px;
+}
+
+/* ===== Теги ===== */
 .tags {
-    font-size: 12px;
+    margin-top: 6px;
+    font-size: 11px;
     color: #9aa4c7;
+    opacity: 0.65;
+}
+
+/* ===== Небольшая стрелка структуры ===== */
+.ruku::after {
+    content: "▸";
+    position: absolute;
+    right: 10px;
+    top: 12px;
+    font-size: 14px;
+    opacity: 0.35;
+    transform: rotate(0deg);
+    transition: transform 0.25s ease;
+}
+
+.ruku:hover::after,
+.ruku.active::after {
+    transform: rotate(90deg);
 }
 
 /* ================== AYAH ================== */
