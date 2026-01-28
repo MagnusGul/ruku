@@ -215,7 +215,7 @@ async function loadRuku(ruku) {
         // ищем, есть ли разделитель после аята
         let separator = null;
         if (ruku.boldSeparators) {
-            separator = ruku.boldSeparators.find(s => s.verse === v.verse_number);
+            separator = ruku.boldSeparators.find(s => s === v.verse_number);
             if (separator) div.classList.add("bold-border");
         }
     
