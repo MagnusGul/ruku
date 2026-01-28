@@ -207,27 +207,18 @@ async function loadRuku(ruku) {
 
     const response = await fetch(url);
     const data = await response.json();
-    
+
     data.verses.forEach(v => {
         const div = document.createElement("div");
-        div.className = "ayah";
-    
-        // ищем, есть ли разделитель после аята
-        let separator = null;
-        if (ruku.boldSeparators) {
-            separator = ruku.boldSeparators.find(s => s === v.verse_number);
-            if (separator) div.classList.add("bold-border");
+        div.className = "ayah"; // если после этого аята нужен жирный разделитель
+        if (ruku.boldSeparators && ruku.boldSeparators.includes(v.verse_number)) { 
+            div.classList.add("bold-border");
         }
-    
         div.innerHTML = `
             <div class="translation">${v.translations[0].text}</div>
-            <div class="arabic">${v.text_uthmani}</div>
-            ${separator && separator.title ? `<div class="separator-title">${separator.title}</div>` : ""}
-        `;
-    
-        content.appendChild(div);
+            <div class="arabic">${v.text_uthmani}</div>` ;
+        content.appendChild(div); 
     });
-
 }
 
 renderRukuList();
