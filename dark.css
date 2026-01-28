@@ -200,3 +200,11 @@ select:focus {
 #bookmarkBtn:active {
     transform: scale(1);
 }
+
+.separator-title {
+    text-align: center;
+    font-weight: 600;
+    font-size: 16px;
+    margin: 12px 0 6px 0;
+    color: #9fb4ff;
+}
