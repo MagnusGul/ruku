@@ -237,7 +237,7 @@ async function loadRuku(ruku) {
             titleDiv.className = "separator-title";
             titleDiv.textContent = separator.title;
             // вставляем прямо перед текущим аятом, чтобы заголовок был сверху
-            div.parentNode.insertBefore(titleDiv, div);
+            content.appendChild(titleDiv);
         }
     });
 
