@@ -40,6 +40,9 @@ body {
 
     border-right: 1px solid rgba(255,255,255,0.08);
     box-shadow: 0 0 40px rgba(0,0,0,0.4);
+    resize: horizontal;
+    overflow: auto;
+}
 }
 
 #content {
