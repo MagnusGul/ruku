@@ -153,15 +153,15 @@ select:focus {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 28px;
-    padding-bottom: 16px;
-    margin-bottom: 20px;
+    padding-top: 16px;
+    margin-top: 20px;
 
-    border-bottom: 1px dashed rgba(255,255,255,0.15);
+    border-top: 1px dashed rgba(255,255,255,0.15);
     animation: fadeInUp 0.35s ease both;
 }
 
 .ayah.bold-border {
-    border-bottom: 3px solid #6a86ff;
+    border-top: 3px solid #6a86ff;
     box-shadow: 0 2px 0 rgba(106,134,255,0.25);
 }
 
