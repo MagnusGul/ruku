@@ -33,7 +33,7 @@ const sidebarItems = [
     { type: "ruku", id: 1, title: "Наилучшая молитва", tags: ["Молитвы"], chapter: 1, from: 1, to: 7, juz: 1 },
     
     { type: "surah", number: 1, name: "Аль-Бакара" },
-    { type: "ruku", id: 2, title: "1 [1:7]. Это руководство для богобоязненных <br> [:222]", tags: ["Неверующие", "Коран"], chapter: 2, from: 1, to: 7, juz: 1, boldSeparators: [5]},
+    { type: "ruku", id: 2, title: "1 [1:5]. Это руководство для богобоязненных <br> [6:7] Предупреждение бесполезно для тех, кто отвергает веру", tags: ["Неверующие", "Коран"], chapter: 2, from: 1, to: 7, juz: 1, boldSeparators: [5]},
     { type: "ruku", id: 3, title: "2 [8:20]. Лицемеры и последствия лицемерия", tags: [], chapter: 2, from: 8, to: 20, juz: 1, boldSeparators: [16] },
     { type: "ruku", id: 4, title: "3 [21:29]. Требование ﷲ поклонятся исключительно Ему", tags: [], chapter: 2, from: 21, to: 29, juz: 1, boldSeparators: [16]},
     { type: "ruku", id: 5, title: "4 [30:37]. История создания Адама ﵇", tags: [], chapter: 2, from: 30, to: 37, juz: 1, boldSeparators: [30, 33, 35, 36, 37] },
@@ -215,7 +215,7 @@ async function loadRuku(ruku) {
             div.classList.add("bold-border");
         }
         div.innerHTML = `
-            <div class="translation">${v.translations[0].text}</div>
+            <div class="translation">${v.verse_number}. ${v.translations[0].text}</div>
             <div class="arabic">${v.text_uthmani}</div>` ;
         content.appendChild(div); 
     });
