@@ -128,8 +128,6 @@ select:focus {
     background: rgba(43,51,80,0.95);
     border-color: #6a86ff;
     box-shadow: 0 4px 12px rgba(106,134,255,0.25), inset 0 0 0 1px rgba(106,134,255,0.4);
-    font-weight: 700; /* жирный для активации */
-    font-size: 16px;  /* слегка увеличиваем текст */
     transform: translateX(2px) scale(1.02); /* плавное увеличение */
 }
 
