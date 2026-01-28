@@ -33,7 +33,12 @@ const sidebarItems = [
     { type: "ruku", id: 1, title: "Наилучшая молитва", tags: ["Молитвы"], chapter: 1, from: 1, to: 7, juz: 1 },
     
     { type: "surah", number: 1, name: "Аль-Бакара" },
-    { type: "ruku", id: 2, title: "1 [1:7]. Это руководство для богобоязненных", tags: ["Неверующие", "Коран"], chapter: 2, from: 1, to: 7, juz: 1, boldSeparators: [5] },
+    { type: "ruku", id: 2, title: "1 [1:7]. Это руководство для богобоязненных", tags: ["Неверующие", "Коран"], chapter: 2, from: 1, to: 7, juz: 1, sections: [
+        { title: "Люди, скрывающие неверие", from: 8, to: 10 },
+        { title: "Порча на земле", from: 11, to: 13 },
+        { title: "Обман самих себя", from: 14, to: 16 },
+        { title: "Пример с огнем", from: 17, to: 21 }
+    ], boldSeparators: [5] },
     { type: "ruku", id: 3, title: "2 [8:20]. Лицемеры и последствия лицемерия", tags: [], chapter: 2, from: 8, to: 20, juz: 1, boldSeparators: [16] },
     { type: "ruku", id: 4, title: "3 [21:29]. Требование ﷲ поклонятся исключительно Ему", tags: [], chapter: 2, from: 21, to: 29, juz: 1, boldSeparators: [22, 24, 25, 27]},
     { type: "ruku", id: 5, title: "4 [30:37]. История создания Адама ﵇", tags: [], chapter: 2, from: 30, to: 37, juz: 1, boldSeparators: [30, 33, 35, 36, 37] },
@@ -85,7 +90,8 @@ const content = document.getElementById("content");
 let activeRukuId = null;
 let activeJuz = null;
 let bookmarks = JSON.parse(localStorage.getItem("bookmarks")) || [];
-
+let expandedRukuId = null;
+    
 /* ================== ТЕГИ ================== */
 
 const tags = [...new Set(
@@ -127,6 +133,19 @@ jumpSelect.onchange = () => {
     }
 };
 
+function scrollToAyah(verseNumber) {
+    const el = document.getElementById(`ayah-${verseNumber}`);
+    if (el) {
+        el.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+
+        el.classList.add("highlight");
+        setTimeout(() => el.classList.remove("highlight"), 1200);
+    }
+}
+
 /* ================== РЕНДЕР ================== */
 
 function renderRukuList(filterTag = "") {
@@ -164,12 +183,43 @@ function renderRukuList(filterTag = "") {
 
             const star = bookmarks.includes(item.id) ? "★ " : "";
 
-            div.innerHTML = `
-                <strong>${star}${item.title}</strong>
-                <div class="tags">#${item.tags.join(" #")}</div>
-            `;
-
-            div.onclick = () => loadRuku(item);
+            if (expandedRukuId === item.id && item.sections) {
+                div.classList.add("active");
+                div.innerHTML = `
+                    <div class="ruku-sections">
+                        ${item.sections.map(s => `
+                            <div class="section"
+                                 data-from="${s.from}">
+                                ${s.title}
+                            </div>
+                        `).join("")}
+                    </div>
+                `;
+            
+                div.querySelectorAll(".section").forEach(sec => {
+                    sec.onclick = (e) => {
+                        e.stopPropagation();
+            
+                        if (activeRukuId !== item.id) {
+                            loadRuku(item, sec.dataset.from);
+                        } else {
+                            scrollToAyah(sec.dataset.from);
+                        }
+                    };
+                });
+            
+            } else {
+                div.innerHTML = `
+                    <strong>${star}${item.title}</strong>
+                    <div class="tags">#${item.tags.join(" #")}</div>
+                `;
+            
+                div.onclick = () => {
+                    expandedRukuId = expandedRukuId === item.id ? null : item.id;
+                    renderRukuList(tagFilter.value);
+                    loadRuku(item);
+                };
+            }
             rukuList.appendChild(div);
         }
     });
@@ -211,6 +261,7 @@ async function loadRuku(ruku) {
     data.verses.forEach(v => {
         const div = document.createElement("div");
         div.className = "ayah";
+        div.id = `ayah-${v.verse_number}`;
     
         // если после этого аята нужен жирный разделитель
         if (ruku.boldSeparators && ruku.boldSeparators.includes(v.verse_number)) {
