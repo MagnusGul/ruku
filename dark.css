@@ -165,11 +165,6 @@ select:focus {
     box-shadow: 0 2px 0 rgba(106,134,255,0.25);
 }
 
-.ayah.bold-border {
-    border-bottom: 3px solid #6a86ff;
-    box-shadow: 0 2px 0 rgba(106,134,255,0.25);
-}
-
 /* ================== TEXT ================== */
 
 .translation {
