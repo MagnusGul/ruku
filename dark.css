@@ -1,3 +1,5 @@
+/* ================== БАЗА ================== */
+
 body {
     margin: 0;
     font-family: Arial, sans-serif;
@@ -7,6 +9,18 @@ body {
     color: #e6e6e6;
 }
 
+/* глобальные плавные переходы */
+* {
+    transition:
+        background-color 0.25s ease,
+        border-color 0.25s ease,
+        color 0.25s ease,
+        box-shadow 0.25s ease,
+        transform 0.25s ease;
+}
+
+/* ================== SIDEBAR ================== */
+
 #sidebar {
     width: 300px;
     background: #141821;
@@ -15,6 +29,8 @@ body {
     box-sizing: border-box;
     overflow-y: auto;
 }
+
+/* ================== SELECT ================== */
 
 select {
     width: 100%;
@@ -26,12 +42,21 @@ select {
     border-radius: 4px;
 }
 
+select:focus {
+    outline: none;
+    border-color: #6a86ff;
+    box-shadow: 0 0 0 2px rgba(106,134,255,0.25);
+}
+
+/* ================== DIVIDERS ================== */
+
 .divider {
     margin: 14px 0 6px;
     padding: 6px 10px;
     font-size: 13px;
     text-transform: uppercase;
     border-radius: 4px;
+    opacity: 0.85;
 }
 
 .divider.juz {
@@ -43,6 +68,7 @@ select {
 .divider.juz.active {
     background: #2f3f7a;
     color: #fff;
+    box-shadow: inset 0 0 0 1px rgba(90,125,255,0.5);
 }
 
 .divider.surah {
@@ -50,6 +76,8 @@ select {
     color: #a8e6c1;
     border-left: 4px solid #4caf7d;
 }
+
+/* ================== RUKU ================== */
 
 .ruku {
     padding: 10px;
@@ -60,9 +88,15 @@ select {
     cursor: pointer;
 }
 
+.ruku:hover {
+    background: #242b3f;
+    transform: translateX(2px);
+}
+
 .ruku.active {
     background: #2b3350;
     border-color: #6a86ff;
+    box-shadow: inset 0 0 0 1px rgba(106,134,255,0.4);
 }
 
 .tags {
@@ -70,10 +104,25 @@ select {
     color: #9aa4c7;
 }
 
+/* ================== CONTENT ================== */
+
 #content {
     flex: 1;
     padding: 20px;
     overflow-y: auto;
+}
+
+/* ================== AYAH ================== */
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .ayah {
@@ -82,11 +131,13 @@ select {
     gap: 24px;
     padding-bottom: 14px;
     margin-bottom: 18px;
-    border-bottom: 1px dashed #2a2f3a; /* обычная линия */
+    border-bottom: 1px dashed #2a2f3a;
+    animation: fadeInUp 0.35s ease both;
 }
 
 .ayah.bold-border {
-    border-bottom: 3px solid #2a2f3a; /* жирная сплошная линия */
+    border-bottom: 3px solid #6a86ff;
+    box-shadow: 0 2px 0 rgba(106,134,255,0.25);
 }
 
 .translation {
@@ -101,6 +152,8 @@ select {
     font-family: "Amiri", serif;
 }
 
+/* ================== BOOKMARK ================== */
+
 #bookmarkBtn {
     margin-left: 10px;
     background: none;
@@ -110,7 +163,11 @@ select {
     color: #ffd36a;
 }
 
-.bold-separator {
-    border-bottom: 3px solid #6a86ff; /* толстая линия */
-    margin: 8px 0 12px 0;
+#bookmarkBtn:hover {
+    transform: scale(1.15);
+    color: #ffe089;
+}
+
+#bookmarkBtn:active {
+    transform: scale(1);
 }
