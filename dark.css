@@ -132,9 +132,9 @@ select:focus {
 }
 
 .descriptions{
-    font-family: Roboto
-    font-size: 12px
-    color: #fff
+    font-family: Roboto;
+    font-size: 12px;
+    color: #fff;
 }
 
 .tags {
