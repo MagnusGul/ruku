@@ -229,7 +229,6 @@ async function loadRuku(ruku) {
         div.innerHTML = `
             <div class="translation">${v.translations[0].text}</div>
             <div class="arabic">${v.text_uthmani}</div>
-            ${separator && separator.title ? `<div class="separator-title">${separator.title}</div>` : ""}
         `;
     
         content.appendChild(div);
