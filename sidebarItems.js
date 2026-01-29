@@ -221,7 +221,7 @@ export const sidebarItems = [
     {
     "type": "ruku",
     "id": 10,
-    "title": "9. Люди Писания — жертвы Нифака",
+    "title": "9. Люди Писания — жертвы нифака",
     "chapter": 2,
     "from": 72,
     "to": 82,
