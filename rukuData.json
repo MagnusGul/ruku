@@ -1,5 +1,0 @@
-[
-  { "type": "juz", "number": 1 },
-  { "type": "surah", "number": 1, "name": "Аль-Фатиха" },
-  { "type": "ruku", "id": 1, "title": "Руку‘ 1", "tags": ["вера"], "chapter": 2, "from": 1, "to": 5, "juz": 1 }
-]
