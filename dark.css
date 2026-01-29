@@ -8,7 +8,6 @@ body {
     font-family: "Inter", Arial, sans-serif;
 
     background-image:
-        linear-gradient(rgba(10,12,18,0.78), rgba(10,12,18,0.78)),
         url("https://images.pexels.com/photos/1738402/pexels-photo-1738402.jpeg"); /* фоновое изображение */
 
     background-size: cover;
