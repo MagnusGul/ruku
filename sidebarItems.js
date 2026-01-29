@@ -121,7 +121,7 @@ export const sidebarItems = [
     {
     "type": "ruku",
     "id": 7,
-    "title": "Спасение сынов Израиля от Фараона",
+    "title": "6. Спасение сынов Израиля от Фараона",
     "chapter": 2,
     "from": 47,
     "to": 59,
