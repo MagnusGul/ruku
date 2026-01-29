@@ -36,7 +36,15 @@ const sidebarItems = [
     { type: "ruku", id: 2, title: "1. Уверовавшие и Неверующие", description: "2:[1-5]. Это руководство для богобоязненных.<br>2:[6-7]. Предупреждение бесполезно для тех, кто отвергает веру",tags: ["Неверующие", "Коран"], chapter: 2, from: 1, to: 7, juz: 1, boldSeparators: [5]},
     { type: "ruku", id: 3, title: "2. Лицемеры", tags: [], description: "2:[8-16]. Лицемеры и последствия лицемерия.<br>2:[17-20]. Притчи о них", chapter: 2, from: 8, to: 20, juz: 1, boldSeparators: [16] },
     { type: "ruku", id: 4, title: "3. Обращение ﷲ к человечеству", description: "2:[21-22]. Требование ﷲ поклоняться исключительно Ему.<br>2:[23-24]. Утверждение что Коран — Писание ﷲ.<br>2:[25] Награда для верующих.<br>2:[26-27]. Притча о комаре может сбить одних и просветить других.<br>2:[28-29]. Как вы можете отвергать ﷲ?", tags: [], chapter: 2, from: 21, to: 29, juz: 1, boldSeparators: [22, 24, 25, 27, 29]},
-    { type: "ruku", id: 5, title: "4. Адам ﵇ — первый человек", description: "2:[30] История создания Адама ﵇.<br>2:[31-33]. Победа знания.<br>2:[34-35]. Ангелы выражают уважение Адаму﵇.<br>2:[36]. Шайтан стал причиной лишения Адамом ﵇ Рая.<br>2:[37]. Покояние Адама ﵇ и его прощение", tags: [], chapter: 2, from: 30, to: 37, juz: 1, boldSeparators: [30, 33, 35, 36, 37] },
+    
+    { type: "ruku", id: 5, title: "4. Адам ﵇ — первый человек", description: [
+        { text: "История создания Адама ﵇", ref: "2:[30]" },
+        { text: "Победа знания", ref: "2:[31–33]" },
+        { text: "Ангелы выражают уважение Адаму ﵇", ref: "2:[34–35]" },
+        { text: "Шайтан стал причиной лишения Рая", ref: "2:[36]" },
+        { text: "Покаяние Адама ﵇ и его прощение", ref: "2:[37]" },
+    ], tags: [], chapter: 2, from: 30, to: 37, juz: 1, boldSeparators: [30, 33, 35, 36, 37] },
+    
     { type: "ruku", id: 6, title: "5 [3:]", tags: [], chapter: 2, from: 1, to: 7, juz: 1, boldSeparators: []  },
     { type: "ruku", id: 7, title: "6 [:]", tags: [], chapter: 2, from: 1, to: 7, juz: 1, boldSeparators: []  },
     { type: "ruku", id: 8, title: "7 [:]", tags: [], chapter: 2, from: 1, to: 7, juz: 1, boldSeparators: []  },
@@ -161,12 +169,22 @@ function renderRukuList(filterTag = "") {
             const div = document.createElement("div");
             div.className = "ruku";
             if (item.id === activeRukuId) div.classList.add("active");
+            const descriptionHtml = Array.isArray(item.description)
+              ? `<div class="outline">
+                    ${item.description.map(d => `
+                        <div class="outline-row">
+                            <span class="outline-text">${d.text}</span>
+                            <span class="outline-ref">${d.ref}</span>
+                        </div>
+                    `).join("")}
+                 </div>`
+              : `<div class="descriptions">${item.description}</div>`;
 
             const star = bookmarks.includes(item.id) ? "★ " : "";
 
             div.innerHTML = `
                 <strong>${star}${item.title}</strong>
-                <div class="descriptions">${item.description}</div>
+                ${descriptionHtml}
                 <div class="tags">#${item.tags.join(" #")}</div>
             `;
 
