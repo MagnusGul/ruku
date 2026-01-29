@@ -261,6 +261,7 @@ select:focus {
     font-family: "Merriweather", "Georgia", serif;
     font-size: 19px;
     line-height: 1.8;
+    text-align: justify
 }
 
 .arabic {
@@ -269,6 +270,7 @@ select:focus {
     line-height: 1.7;
     text-align: right;
     direction: rtl;
+    text-align: justify
 }
 
 /* ================== BOOKMARK ================== */
