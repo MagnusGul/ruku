@@ -208,7 +208,7 @@ select:focus {
 
 .outline-row {
     display: grid;
-    grid-template-columns: 1fr auto;
+    grid-template-columns: 1fr 50px;
     gap: 12px;
     padding: 2px 0;
 }
