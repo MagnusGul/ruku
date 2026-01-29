@@ -163,7 +163,7 @@ export const sidebarItems = [
     {
     "type": "ruku",
     "id": 8,
-    "title": "Израильтяне отвергли аяты ﷲ",
+    "title": "7. Израильтяне отвергли аяты ﷲ",
     "chapter": 2,
     "from": 60,
     "to": 61,
