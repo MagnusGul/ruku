@@ -114,3 +114,4 @@ export const sidebarItems = [
         juz: 1,
         boldSeparators: [39, 43, 44, 46]
     },
+]
