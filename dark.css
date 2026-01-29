@@ -147,7 +147,7 @@ select:focus {
 }
 
 /* ===== Описание / структура ===== */
-.descriptions {
+.outline {
     font-family: Roboto, system-ui, sans-serif;
     font-size: 13px;
     line-height: 1.45;
@@ -166,16 +166,10 @@ select:focus {
 }
 
 /* показываем структуру при hover и active */
-.ruku:hover .descriptions,
-.ruku.active .descriptions {
+.ruku:hover .outline,
+.ruku.active .outline {
     max-height: 300px;
     opacity: 1;
-}
-
-/* чуть воздуха между строками внутри description */
-.descriptions div,
-.descriptions p {
-    margin-bottom: 2px;
 }
 
 /* ===== Теги ===== */
