@@ -1,7 +1,11 @@
 export const sidebarItems = [
     { type: "juz", number: 1 },
     { type: "surah", number: 1, name: "Аль-Фатиха" },
-    { type: "ruku", id: 1, title: "Наилучшая молитва", tags: ["Молитвы"], chapter: 1, from: 1, to: 7, juz: 1 },
+    { type: "ruku", id: 1, title: "Наилучшая молитва", tags: ["Молитвы"], chapter: 1, from: 1, to: 7, juz: 1 , description: [
+            {
+                text: "Лучшая молитва наученная Самим ﷲ",
+                ref: "1:[1–7]"
+            }]},
 
     { type: "surah", number: 1, name: "Аль-Бакара" },
     {
