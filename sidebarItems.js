@@ -7,7 +7,7 @@ export const sidebarItems = [
                 ref: "1:[1–7]"
             }]},
 
-    { type: "surah", number: 1, name: "Аль-Бакара" },
+    { type: "surah", number: 2, name: "Аль-Бакара" },
     {
         type: "ruku",
         id: 2,
