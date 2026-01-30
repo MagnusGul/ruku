@@ -138,15 +138,15 @@ async function loadTafsir(rukuId) {
 };
 
 async function loadSurah(surah) {
-    activeSurah = surah.chapter;
+    activeSurah = surah.number;
     renderRukuList(tagFilter.value);
 
     content.innerHTML = `
         <h2>
-            ${surah.title}
+            ${surah.name}
         </h2>
     `;
-    await loadTafsir(ruku.id);
+    await loadTafsir(surah.name);
 };
 
 async function loadRuku(ruku) {
