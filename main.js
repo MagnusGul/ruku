@@ -120,7 +120,7 @@ async function loadTafsir(rukuId) {
     const tafsirContainer = document.createElement("section");
     tafsirContainer.id = "tafsir";
     tafsirContainer.innerHTML = `
-        <h3>Тафсир Ибн Касира</h3>
+        <h3>В Тафсир Ибн Касира сказано</h3>
         <div class="tafsir-content">Загрузка...</div>
     `;
     content.appendChild(tafsirContainer);
