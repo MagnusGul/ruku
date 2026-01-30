@@ -9,6 +9,7 @@ const content = document.getElementById("content");
 
 let activeRukuId = null;
 let activeJuz = null;
+let activeSurah = null;
 let bookmarks = JSON.parse(localStorage.getItem("bookmarks")) || [];
 
 /* ================== ТЕГИ ================== */
@@ -74,6 +75,7 @@ function renderRukuList(filterTag = "") {
         if (item.type === "surah") {
             const div = document.createElement("div");
             div.className = "divider surah";
+            if (item.number === activeSurah) div.classList.add("active");
             div.textContent = `Сура ${item.number}. ${item.name}`;
             div.dataset.anchor = `surah-${item.number}`;
             rukuList.appendChild(div);
@@ -137,6 +139,7 @@ async function loadTafsir(rukuId) {
 async function loadRuku(ruku) {
     activeRukuId = ruku.id;
     activeJuz = ruku.juz;
+    activeSurah = ruku.chapter;
     renderRukuList(tagFilter.value);
 
     const isBookmarked = bookmarks.includes(ruku.id);
