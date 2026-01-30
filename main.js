@@ -78,6 +78,7 @@ function renderRukuList(filterTag = "") {
             if (item.number === activeSurah) div.classList.add("active");
             div.textContent = `Сура ${item.number}. ${item.name}`;
             div.dataset.anchor = `surah-${item.number}`;
+            div.onclick = () => loadSurah(item);
             rukuList.appendChild(div);
             return;
         }
@@ -134,7 +135,19 @@ async function loadTafsir(rukuId) {
     } catch {
         tafsirContainer.remove(); // если тафсира нет — просто не показываем
     }
-}
+};
+
+async function loadSurah(surah) {
+    activeSurah = surah.chapter;
+    renderRukuList(tagFilter.value);
+
+    content.innerHTML = `
+        <h2>
+            ${surah.title}
+        </h2>
+    `;
+    await loadTafsir(ruku.id);
+};
 
 async function loadRuku(ruku) {
     activeRukuId = ruku.id;
