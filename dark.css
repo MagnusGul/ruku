@@ -291,3 +291,22 @@ select:focus {
 #bookmarkBtn:active {
     transform: scale(1);
 }
+
+#tafsir {
+    margin-top: 80px;
+    padding-top: 32px;
+    border-top: 2px solid rgba(255,255,255,0.15);
+    max-width: 900px;
+}
+
+#tafsir h3 {
+    font-size: 20px;
+    margin-bottom: 20px;
+    opacity: 0.85;
+}
+
+.tafsir-content {
+    font-size: 15px;
+    line-height: 1.8;
+    opacity: 0.92;
+}
