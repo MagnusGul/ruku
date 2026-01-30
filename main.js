@@ -114,6 +114,25 @@ function renderRukuList(filterTag = "") {
 tagFilter.onchange = () => renderRukuList(tagFilter.value);
 
 /* ================== ЗАГРУЗКА РУКУ‘ ================== */
+async function loadTafsir(rukuId) {
+    const tafsirContainer = document.createElement("section");
+    tafsirContainer.id = "tafsir";
+    tafsirContainer.innerHTML = `
+        <h3>Тафсир Ибн Касира</h3>
+        <div class="tafsir-content">Загрузка...</div>
+    `;
+    content.appendChild(tafsirContainer);
+
+    try {
+        const res = await fetch(`./tafsir/${rukuId}.html`);
+        if (!res.ok) throw new Error("no tafsir");
+
+        const html = await res.text();
+        tafsirContainer.querySelector(".tafsir-content").innerHTML = html;
+    } catch {
+        tafsirContainer.remove(); // если тафсира нет — просто не показываем
+    }
+}
 
 async function loadRuku(ruku) {
     activeRukuId = ruku.id;
@@ -139,22 +158,30 @@ async function loadRuku(ruku) {
         loadRuku(ruku);
     };
 
-    const url = `https://api.quran.com/api/v4/verses/by_chapter/${ruku.chapter}?from=${ruku.from}&to=${ruku.to}&translations=45&fields=text_uthmani&per_page=50`
-
+    // ===== ЗАГРУЗКА АЯТОВ =====
+    const url = `https://api.quran.com/api/v4/verses/by_chapter/${ruku.chapter}?from=${ruku.from}&to=${ruku.to}&translations=45&fields=text_uthmani&per_page=50`;
     const response = await fetch(url);
     const data = await response.json();
 
     data.verses.forEach(v => {
         const div = document.createElement("div");
-        div.className = "ayah"; // если после этого аята нужен жирный разделитель
-        if (ruku.boldSeparators && ruku.boldSeparators.includes(v.verse_number)) { 
+        div.className = "ayah";
+
+        if (ruku.boldSeparators && ruku.boldSeparators.includes(v.verse_number)) {
             div.classList.add("bold-border");
         }
+
         div.innerHTML = `
             <div class="translation">${v.verse_number}. ${v.translations[0].text}</div>
-            <div class="arabic">${v.text_uthmani}</div>` ;
-        content.appendChild(div); 
+            <div class="arabic">${v.text_uthmani}</div>
+        `;
+
+        content.appendChild(div);
     });
+
+    // ===== ТАФСИР В КОНЦЕ =====
+    await loadTafsir(ruku.id);
 }
+
 
 renderRukuList();
