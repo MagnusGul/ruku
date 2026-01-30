@@ -110,6 +110,12 @@ select:focus {
     border-left: 4px solid #4caf7d;
 }
 
+.divider.surah.active {
+    background: rgba(32,52,44,0.85);
+    color: #dff5ea;
+    border-left: 4px solid #8be0c0;
+}
+
 /* ================== RUKU ================== */
 
 .ruku {
