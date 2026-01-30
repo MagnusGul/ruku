@@ -139,6 +139,8 @@ async function loadTafsir(rukuId) {
 
 async function loadSurah(surah) {
     activeSurah = surah.number;
+    activeRukuId = null;
+    activeJuz = null;
     renderRukuList(tagFilter.value);
 
     content.innerHTML = `
