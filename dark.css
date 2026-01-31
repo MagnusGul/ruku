@@ -449,3 +449,16 @@ select:focus {
     text-decoration: underline;
 }
 
+.tafsir-highlight {
+    animation: tafsirGlow 1.5s ease;
+}
+
+@keyframes tafsirGlow {
+    0% {
+        background: rgba(106,134,255,0.18);
+    }
+    100% {
+        background: transparent;
+    }
+}
+
