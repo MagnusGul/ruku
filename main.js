@@ -137,6 +137,24 @@ async function loadTafsir(rukuId) {
     }
 };
 
+function scrollToTafsir(chapter, verse) {
+    const tafsirId = `tafsir-${chapter}-${verse}`;
+    const target = document.getElementById(tafsirId);
+
+    if (!target) return;
+
+    target.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+    });
+
+    target.classList.add("tafsir-highlight");
+
+    setTimeout(() => {
+        target.classList.remove("tafsir-highlight");
+    }, 1500);
+}
+
 async function loadSurah(surah) {
     activeSurah = surah.number;
     activeRukuId = null;
@@ -194,6 +212,7 @@ async function loadRuku(ruku) {
             <div class="arabic">${v.text_uthmani}</div>
         `;
 
+        div.onclick = () => scrollToTafsir(ruku.chapter, v.verse_number);
         content.appendChild(div);
     });
 
