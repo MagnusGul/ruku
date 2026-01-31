@@ -254,8 +254,7 @@ select:focus {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 28px;
-    padding-bottom: 16px;
-    margin-bottom: 20px;
+    padding: 16px;
 
     border-bottom: 1px dashed rgba(255,255,255,0.15);
     animation: fadeInUp 0.35s ease both;
@@ -264,6 +263,13 @@ select:focus {
 .ayah.bold-border {
     border-bottom: 3px solid #6a86ff;
     box-shadow: 0 2px 0 rgba(106,134,255,0.25);
+}
+
+.ayah:hover {
+    background: rgba(255,255,255,0.025);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+    cursor: pointer;
 }
 
 /* ================== TEXT ================== */
