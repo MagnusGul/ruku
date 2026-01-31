@@ -10,6 +10,7 @@ body {
     background-image:
         url("bg.jpeg"); /* фоновое изображение */
 
+
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
@@ -466,5 +467,31 @@ select:focus {
     100% {
         background: transparent;
     }
+}
+
+.tafsir-divider {
+    display: flex;
+    align-items: center;
+    margin: 48px 0 36px;
+}
+
+.tafsir-divider::before,
+.tafsir-divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(
+        to right,
+        transparent,
+        rgba(255,255,255,0.25),
+        transparent
+    );
+}
+
+.tafsir-divider span {
+    padding: 0 14px;
+    font-size: 13px;
+    opacity: 0.6;
+    white-space: nowrap;
 }
 
