@@ -148,7 +148,7 @@ async function loadRukuAudio(rukuId) {
     const audio = document.getElementById("rukuAudio");
     const playPauseBtn = document.getElementById("playPauseBtn");
     const progress = document.getElementById("audioProgress");
-    const path = `/ruku/audio/${rukuId}.json`;
+    const path = `./audio/${rukuId}.json`;
 
     const response = await fetch(path);
     const data = await response.json();
@@ -158,7 +158,7 @@ async function loadRukuAudio(rukuId) {
     let ayahTimings = data.ayahs;
     console.log(ayahTimings)
 
-    audio.src = `ruku/audio/${rukuId}.mp3`;
+    audio.src = `./audio/${rukuId}.mp3`;
     audio.load();
     progress.value = 0;
     playPauseBtn.textContent = "▶";
@@ -331,4 +331,5 @@ async function loadRuku(ruku) {
 
 
 renderRukuList();
+
 
