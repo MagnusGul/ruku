@@ -155,7 +155,7 @@ async function loadRukuAudio(rukuId) {
 
     let ayahTimings = data.ayahs;
 
-    audio.src = `/audio/${rukuId}.mp3`;
+    audio.src = `audio/${rukuId}.mp3`;
     audio.load();
     progress.value = 0;
     playPauseBtn.textContent = "▶";
@@ -328,6 +328,7 @@ async function loadRuku(ruku) {
 
 
 renderRukuList();
+
 
 
 
