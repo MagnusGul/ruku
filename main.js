@@ -11,8 +11,8 @@ let activeRukuId = null;
 let activeJuz = null;
 let activeSurah = null;
 let bookmarks = JSON.parse(localStorage.getItem("bookmarks")) || [];
-let currentPlayingVerse = null
-
+let currentPlayingVerse = null;
+let audioMode = "stop";
 /* ================== ТЕГИ ================== */
 
 const tags = [...new Set(
@@ -147,6 +147,7 @@ function highlightAyah(verseNumber) {
 async function loadRukuAudio(rukuId) {
     const audio = document.getElementById("rukuAudio");
     const playPauseBtn = document.getElementById("playPauseBtn");
+    const playModeBtn = document.getElementById("playModeBtn");
     const progress = document.getElementById("audioProgress");
     const path = `./audio/${rukuId}.json`;
 
@@ -158,8 +159,14 @@ async function loadRukuAudio(rukuId) {
     audio.src = `audio/${rukuId}.mp3`;
     audio.load();
     progress.value = 0;
-    playPauseBtn.textContent = "▶";
 
+    if (audioMode === "next") {
+            audio.play();
+            playPauseBtn.textContent = "⏸";
+            playModeBtn.textContent = "⇒";
+    } else if (audioMode === "repeat") {
+        playModeBtn.textContent = "↺";
+    };
     playPauseBtn.onclick = () => {
         if (audio.paused) {
             audio.play();
@@ -167,6 +174,18 @@ async function loadRukuAudio(rukuId) {
         } else {
             audio.pause();
             playPauseBtn.textContent = "▶";
+        }
+    };
+    playModeBtn.onclick = () => {
+        if (audioMode === "stop") {
+            audioMode = "repeat";
+            playModeBtn.textContent = "↺";
+        } else if (audioMode === "repeat") {
+            audioMode = "next";
+            playModeBtn.textContent = "⇒";
+        } else if (audioMode === "next") {
+            audioMode = "stop";
+            playModeBtn.textContent = "▣";
         }
     };
 
@@ -178,13 +197,27 @@ async function loadRukuAudio(rukuId) {
     });
 
     // перемотка
-    progress.addEventListener("change", () => {
+    await progress.addEventListener("change", () => {
         audio.currentTime = progress.value;
     });
 
     // конец воспроизведения
     audio.addEventListener("ended", () => {
-        playPauseBtn.textContent = "▶";
+        console.log("audio ended")
+        if (audioMode === "stop") {
+            playPauseBtn.textContent = "▶";
+        } else if (audioMode === "next") {
+            let nextId = null
+            sidebarItems.forEach(item => {
+                if (item.id === (activeRukuId + 1)) {
+                    nextId = item;
+                };
+            });
+            loadRuku(nextId);
+        } else if (audioMode === "repeat") {
+            audio.currentTime = 0
+            audio.play()
+        }
     });
     let currentPlayingVerse = null;
 
@@ -281,6 +314,7 @@ async function loadRuku(ruku) {
         </h2>
         <div id="audio-player">
             <button id="playPauseBtn">▶</button>
+            <button id="playModeBtn">▣</button>
             <div class="audio-info">
                 <input type="range" id="audioProgress" value="0" min="0" step="0.1">
             </div>
