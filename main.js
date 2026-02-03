@@ -11,6 +11,7 @@ let activeRukuId = null;
 let activeJuz = null;
 let activeSurah = null;
 let bookmarks = JSON.parse(localStorage.getItem("bookmarks")) || [];
+let currentPlayingVerse = null
 
 /* ================== ТЕГИ ================== */
 
@@ -60,7 +61,7 @@ function renderRukuList(filterTag = "") {
 
     sidebarItems.forEach(item => {
 
-        if ((item.type === "juz" || item.type === "surah") && filterTag) return;
+//        if ((item.type === "juz" || item.type === "surah") && filterTag) return;
 
         if (item.type === "juz") {
             const div = document.createElement("div");
@@ -117,6 +118,96 @@ function renderRukuList(filterTag = "") {
 tagFilter.onchange = () => renderRukuList(tagFilter.value);
 
 /* ================== ЗАГРУЗКА РУКУ‘ ================== */
+// пример: аудио всего руку
+
+function highlightAyah(verseNumber) {
+    if (currentPlayingVerse === verseNumber) return;
+
+    currentPlayingVerse = verseNumber;
+
+    document.querySelectorAll(".ayah.playing")
+        .forEach(el => el.classList.remove("playing"));
+
+    const ayah = document.querySelector(
+        `#ayah-${verseNumber}`
+    );
+
+    if ((ayah) && (verseNumber != 0)){
+        ayah.classList.add("playing");
+
+//        // мягко довести в зону видимости (по желанию)
+//        ayah.scrollIntoView({
+//            behavior: "smooth",
+//            block: "center"
+//        });
+    }
+}
+
+
+async function loadRukuAudio(rukuId) {
+    const audio = document.getElementById("rukuAudio");
+    const playPauseBtn = document.getElementById("playPauseBtn");
+    const progress = document.getElementById("audioProgress");
+    const path = `/audio/${rukuId}.json`;
+
+    const response = await fetch(path);
+    const data = await response.json();
+
+    console.log(data)
+
+    let ayahTimings = data.ayahs;
+    console.log(ayahTimings)
+
+    audio.src = `audio/${rukuId}.mp3`;
+    audio.load();
+    progress.value = 0;
+    playPauseBtn.textContent = "▶";
+
+    playPauseBtn.onclick = () => {
+        if (audio.paused) {
+            audio.play();
+            playPauseBtn.textContent = "⏸";
+        } else {
+            audio.pause();
+            playPauseBtn.textContent = "▶";
+        }
+    };
+
+    // обновление прогресса
+    audio.addEventListener("timeupdate", () => {
+        if (!audio.duration) return;
+        progress.max = audio.duration;
+        progress.value = audio.currentTime;
+    });
+
+    // перемотка
+    progress.addEventListener("change", () => {
+        audio.currentTime = progress.value;
+    });
+
+    // конец воспроизведения
+    audio.addEventListener("ended", () => {
+        playPauseBtn.textContent = "▶";
+    });
+    let currentPlayingVerse = null;
+
+    audio.addEventListener("ended", () => {
+    highlightAyah(0);
+    });
+
+    audio.addEventListener("timeupdate", () => {
+        const time = audio.currentTime;
+
+        for (let i = ayahTimings.length - 1; i >= 0; i--) {
+
+            if (time >= ayahTimings[i].start) {
+                highlightAyah(ayahTimings[i].verse);
+                break;
+            }
+        }
+    });
+}
+
 async function loadTafsir(rukuId) {
     const tafsirContainer = document.createElement("section");
     tafsirContainer.id = "tafsir";
@@ -170,6 +261,15 @@ async function loadSurah(surah) {
 };
 
 async function loadRuku(ruku) {
+
+    if (activeRukuId === ruku.id) {
+    let target = document.querySelector("h2")
+    target.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+        });
+        return
+    }
     activeRukuId = ruku.id;
     activeJuz = ruku.juz;
     activeSurah = ruku.chapter;
@@ -182,6 +282,14 @@ async function loadRuku(ruku) {
             ${ruku.title}
             <button id="bookmarkBtn">${isBookmarked ? "★" : "☆"}</button>
         </h2>
+        <div id="audio-player">
+            <button id="playPauseBtn">▶</button>
+            <div class="audio-info">
+                <input type="range" id="audioProgress" value="0" min="0" step="0.1">
+            </div>
+        </div>
+
+        <audio id="rukuAudio"></audio>
     `;
 
     document.getElementById("bookmarkBtn").onclick = () => {
@@ -202,6 +310,7 @@ async function loadRuku(ruku) {
     data.verses.forEach(v => {
         const div = document.createElement("div");
         div.className = "ayah";
+        div.id = `ayah-${v.verse_number}`
 
         if (ruku.boldSeparators && ruku.boldSeparators.includes(v.verse_number)) {
             div.classList.add("bold-border");
@@ -215,9 +324,9 @@ async function loadRuku(ruku) {
         div.onclick = () => scrollToTafsir(ruku.chapter, v.verse_number);
         content.appendChild(div);
     });
-
     // ===== ТАФСИР В КОНЦЕ =====
     await loadTafsir(ruku.id);
+    await loadRukuAudio(ruku.id)
 }
 
 
