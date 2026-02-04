@@ -13,6 +13,43 @@ let activeSurah = null;
 let bookmarks = JSON.parse(localStorage.getItem("bookmarks")) || [];
 let currentPlayingVerse = null;
 let audioMode = "stop";
+
+function restoreFromURL() {
+    const params = new URLSearchParams(window.location.search);
+
+    if (params.has("ruku")) {
+        const rukuId = parseInt(params.get("ruku"), 10);
+        const ruku = sidebarItems.find(
+            item => item.type === "ruku" && item.id === rukuId
+        );
+
+        if (ruku) {
+            loadRuku(ruku);
+            return;
+        }
+    }
+
+    if (params.has("surah")) {
+        const surahNumber = parseInt(params.get("surah"), 10);
+        scrollToSurah(surahNumber);
+    }
+}
+
+window.addEventListener("DOMContentLoaded", () => {
+    restoreFromURL();
+});
+
+window.addEventListener("popstate", (event) => {
+    if (!event.state) return;
+
+    if (event.state.ruku) {
+        const ruku = sidebarItems.find(
+            item => item.type === "ruku" && item.id === event.state.ruku
+        );
+        if (ruku) loadRuku(ruku);
+    }
+});
+
 /* ================== ТЕГИ ================== */
 
 const tags = [...new Set(
@@ -53,6 +90,35 @@ jumpSelect.onchange = () => {
         target.scrollIntoView({ behavior: "smooth" });
     }
 };
+
+document.addEventListener('DOMContentLoaded', () => {
+    const themeToggle = document.getElementById('themeToggle');
+    const themeText = themeToggle.querySelector('.text');
+    const themeIcon = themeToggle.querySelector('.icon');
+
+    // Функция для обновления интерфейса кнопки
+    function updateBtn(isLight) {
+        themeText.textContent = isLight ? "Темная тема" : "Светлая тема";
+        themeIcon.textContent = isLight ? "☀️" : "🌑";
+    }
+
+    // Проверяем сохраненную тему в памяти браузера
+    if (localStorage.getItem('theme') === 'light') {
+        document.body.classList.add('light-theme');
+        updateBtn(true);
+    }
+
+    // Слушатель клика
+    themeToggle.addEventListener('click', () => {
+        const isLight = document.body.classList.toggle('light-theme');
+
+        // Сохраняем выбор
+        localStorage.setItem('theme', isLight ? 'light' : 'dark');
+
+        // Обновляем текст кнопки
+        updateBtn(isLight);
+    });
+});
 
 /* ================== РЕНДЕР ================== */
 
@@ -143,6 +209,16 @@ function highlightAyah(verseNumber) {
     }
 }
 
+function updateURL(params) {
+    const url = new URL(window.location);
+
+    Object.entries(params).forEach(([key, value]) => {
+        url.searchParams.set(key, value);
+    });
+
+    history.pushState(params, "", url);
+}
+
 
 async function loadRukuAudio(rukuId) {
     const audio = document.getElementById("rukuAudio");
@@ -207,13 +283,16 @@ async function loadRukuAudio(rukuId) {
         if (audioMode === "stop") {
             playPauseBtn.textContent = "▶";
         } else if (audioMode === "next") {
-            let nextId = null
-            sidebarItems.forEach(item => {
-                if (item.id === (activeRukuId + 1)) {
-                    nextId = item;
-                };
-            });
-            loadRuku(nextId);
+            const ruku = sidebarItems.find(
+                item => item.type === "ruku" && item.id === (activeRukuId + 1)
+            );
+
+            if (ruku) {
+                loadRuku(ruku);
+                return;
+            }
+
+
         } else if (audioMode === "repeat") {
             audio.currentTime = 0
             audio.play()
@@ -355,6 +434,7 @@ async function loadRuku(ruku) {
         div.onclick = () => scrollToTafsir(ruku.chapter, v.verse_number);
         content.appendChild(div);
     });
+    updateURL({ ruku: ruku.id });
     // ===== ТАФСИР В КОНЦЕ =====
     await loadTafsir(ruku.id);
     await loadRukuAudio(ruku.id)

@@ -81,7 +81,7 @@ export const sidebarItems = [
         from: 21,
         to: 29,
         juz: 1,
-        boldSeparators: [22, 24, 25, 27, 29]
+        boldSeparators: [22, 24, 25, 27]
     },
     {
         type: "ruku",
@@ -99,7 +99,7 @@ export const sidebarItems = [
         from: 30,
         to: 37,
         juz: 1,
-        boldSeparators: [30, 33, 35, 36, 37]
+        boldSeparators: [30, 33, 35, 36]
     },
     {
         type: "ruku",
@@ -116,7 +116,7 @@ export const sidebarItems = [
         from: 38,
         to: 46,
         juz: 1,
-        boldSeparators: [39, 43, 44, 46]
+        boldSeparators: [39, 43, 44]
     },
     {
     "type": "ruku",
