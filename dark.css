@@ -395,6 +395,20 @@ body.light-theme #themeToggle .text {
     text-indent: 30px;
 }
 
+.tafsir-divider {
+    display: flex;
+    align-items: center;
+    margin: 48px 0 36px;
+}
+
+.tafsir-divider::before,
+.tafsir-divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, transparent, rgba(255,255,255,0.25), transparent);
+}
+
 .scholar-quote {
     margin: 22px 0;
     padding: 16px 20px;
@@ -475,6 +489,11 @@ body.light-theme #themeToggle .text {
    ========================================================================== */
 
 #audio-player {
+            position: sticky; top: 0;
+        background: var(--bg-content);
+        backdrop-filter: blur(8px);
+        z-index: 9;
+
     display: flex;
     align-items: center;
     gap: 14px;
@@ -570,4 +589,8 @@ body.light-theme #themeToggle .text {
         backdrop-filter: blur(8px);
         z-index: 9;
     }
+
+    .audio-info {
+        margin-right: 4%;
+    };
 }
