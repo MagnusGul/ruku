@@ -1,0 +1,17 @@
+{
+  "ayahs": [
+    { "verse": 8, "start": 0.0 },
+    { "verse": 9, "start": 13.0 },
+    { "verse": 10, "start": 29.8 },
+    { "verse": 11, "start": 44.0 },
+    { "verse": 12, "start": 53.0 },
+    { "verse": 13, "start": 59.8 },
+    { "verse": 14, "start": 83.4 },
+    { "verse": 15, "start": 100.3 },
+    { "verse": 16, "start": 107.8 },
+    { "verse": 17, "start": 129.0 },
+    { "verse": 18, "start": 149.8 },
+    { "verse": 19, "start": 157.2 },
+    { "verse": 20, "start": 181.2 }
+  ]
+}
