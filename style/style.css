@@ -3,7 +3,7 @@
    ========================================================================== */
 :root {
     /* --- ТЕМНАЯ ТЕМА (По умолчанию) --- */
-    --bg-app-image: url("/style/bg.jpeg");
+    --bg-app-image: url("/ruku/style/bg.jpeg");
     --bg-sidebar: rgba(20, 24, 33, 0.75);
     --bg-content: rgba(15, 18, 23, 0.72);
     --bg-card: rgba(25, 30, 42, 0.75);
@@ -38,7 +38,7 @@
 
 body.light-theme {
     /* --- СВЕТЛАЯ ТЕМА --- */
-    --bg-app-image: url("/style/bg-light.jpg"); /* Можно заменить на светлую картинку или цвет */
+    --bg-app-image: url("/ruku/style/bg-light.jpg"); /* Можно заменить на светлую картинку или цвет */
     --bg-sidebar: rgba(240, 242, 247, 0.9);
     --bg-content: rgba(255, 255, 255, 0.85);
     --bg-card: rgba(255, 255, 255, 0.7);
