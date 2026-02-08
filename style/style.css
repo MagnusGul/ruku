@@ -266,7 +266,7 @@ body.light-theme #themeToggle .text {
 
 .outline-row {
     display: grid;
-    grid-template-columns: 1fr 50px;
+    grid-template-columns: 1fr 60px;
     gap: 12px;
     padding: 2px 0;
 }

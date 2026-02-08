@@ -175,6 +175,7 @@ class SidebarEditor:
                 except:
                     item[field] = val
             elif field in ["tags", "boldSeparators"]:
+                item[field] = []
                 item[field] = [x.strip() for x in val.split(",") if x.strip()]
                 if field == "boldSeparators":
                     item[field] = [int(x) for x in item[field] if x.isdigit()]

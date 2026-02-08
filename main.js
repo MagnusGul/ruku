@@ -142,10 +142,16 @@ function appendRukuItem(item) {
         : `<div class="descriptions">${item.description}</div>`;
 
     const isStarred = state.bookmarks.includes(item.id);
+    let tags = ``
+    try {
+        tags = `<div class="tags">#${item.tags.join(" #")}</div>`
+    } catch (err) {
+        console.warn("Теги не найдены для этого руку");
+    }
     div.innerHTML = `
         <strong>${isStarred ? "★ " : ""}${item.title}</strong>
         ${descriptionHtml}
-        <div class="tags">#${item.tags.join(" #")}</div>
+        ${tags}
     `;
     div.onclick = () => loadRuku(item);
     els.rukuList.appendChild(div);
