@@ -1,12 +1,17 @@
 {
   "ayahs": [
-    { "verse": 30, "start": 0.0 },
-    { "verse": 31, "start": 33.3 },
-    { "verse": 32, "start": 58.0 },
-    { "verse": 33, "start": 76.0 },
-    { "verse": 34, "start": 111.2 },
-    { "verse": 35, "start": 127.8 },
-    { "verse": 36, "start": 146.0 },
-    { "verse": 37, "start": 165.0 }
+    { "verse": 47, "start": 0.0 },
+    { "verse": 48, "start": 16.6 },
+    { "verse": 49, "start": 44.3 },
+    { "verse": 50, "start": 76.9 },
+    { "verse": 51, "start": 89.2 },
+    { "verse": 52, "start": 104.8 },
+    { "verse": 53, "start": 124.5 },
+    { "verse": 54, "start": 132.9 },
+    { "verse": 55, "start": 158.9 },
+    { "verse": 56, "start": 172.1 },
+    { "verse": 57, "start": 179.0 },
+    { "verse": 58, "start": 199.3 },
+    { "verse": 59, "start": 221.2 }
   ]
 }
